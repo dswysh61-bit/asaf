@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>מערכת אסף</title>
+
+<!-- ===== PWA ===== -->
+<meta name="theme-color" content="#0b1220">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="אסף">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233b82f6'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Ctext x='90' y='125' font-size='96' text-anchor='middle'%3E%F0%9F%9A%97%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#0b1220; --bg2:#121c30; --card:#ffffff; --ink:#0f2744; --muted:#64748b;
+    --line:#e2e8f0; --accent:#2563eb; --accent2:#1d4ed8;
+    --green:#16a34a; --orange:#ea580c; --red:#dc2626;
+    --soft:#f8fafc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Heebo',sans-serif;
+    min-height:100vh;
+    background:radial-gradient(1200px 600px at 80% -10%, #1e3a8a33, transparent),
+               radial-gradient(1000px 500px at -10% 110%, #0891b233, transparent),
+               linear-gradient(160deg,var(--bg1),var(--bg2));
+    color:var(--ink);
+    display:flex;flex-direction:column;align-items:center;
+    padding:24px 16px 60px;
+  }
+  /* ===== Header ===== */
+  .brand{
+    display:flex;align-items:center;gap:14px;margin:12px 0 6px;
+    color:#fff;text-align:center;flex-direction:column;
+  }
+  .brand .logo{
+    width:64px;height:64px;border-radius:20px;
+    background:linear-gradient(135deg,#3b82f6,#06b6d4);
+    display:flex;align-items:center;justify-content:center;font-size:32px;
+    box-shadow:0 14px 40px #0ea5e955, inset 0 1px 0 #ffffff55;
+  }
+  .brand h1{font-size:30px;font-weight:900;letter-spacing:-0.5px}
+  .brand .sub{color:#a9c0e6;font-size:13px;font-weight:500;margin-top:2px}
+
+  /* ===== Breadcrumb ===== */
+  .crumbs{
+    display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;
+    margin:14px 0 22px;min-height:34px;
+  }
+  .crumb{
+    background:#ffffff14;color:#dbeafe;border:1px solid #ffffff22;
+    padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600;
+    backdrop-filter:blur(6px);
+  }
+  .crumb.active{background:#fff;color:var(--ink)}
+  .crumb .c-ico{margin-inline-end:5px}
+
+  /* ===== Card container ===== */
+  .stage{width:100%;max-width:760px}
+  .panel{
+    background:var(--card);border-radius:24px;
+    box-shadow:0 30px 60px #0006, 0 2px 0 #ffffff40 inset;
+    padding:30px;
+    animation:rise .35s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .panel h2{font-size:22px;font-weight:800;margin-bottom:6px}
+  .panel .lead{color:var(--muted);font-size:14px;margin-bottom:22px}
+
+  /* ===== Choice grid ===== */
+  .grid{display:grid;gap:16px}
+  .grid.three{grid-template-columns:repeat(3,1fr)}
+  .grid.two{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:620px){.grid.three,.grid.two{grid-template-columns:1fr}}
+
+  .choice{
+    border:2px solid var(--line);border-radius:20px;padding:26px 18px;
+    background:var(--soft);cursor:pointer;text-align:center;
+    transition:.18s;position:relative;overflow:hidden;
+  }
+  .choice:hover{border-color:var(--accent);transform:translateY(-4px);
+    box-shadow:0 16px 30px #2563eb22;background:#fff}
+  .choice .ico{font-size:44px;display:block;margin-bottom:10px}
+  .choice .t{font-size:19px;font-weight:800;color:var(--ink)}
+  .choice .d{font-size:12px;color:var(--muted);margin-top:4px}
+
+  .choice.act{padding:36px 18px}
+  .choice.act.enter:hover{border-color:var(--green);box-shadow:0 16px 30px #16a34a22}
+  .choice.act.check:hover{border-color:var(--accent);box-shadow:0 16px 30px #2563eb22}
+
+  /* ===== Form ===== */
+  .field{margin-bottom:18px}
+  .field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px;color:#334155}
+  .field label .req{color:var(--red);margin-inline-start:3px}
+  .field input[type=text], .field textarea{
+    width:100%;border:2px solid var(--line);border-radius:12px;
+    padding:12px 14px;font-family:inherit;font-size:15px;background:var(--soft);
+    transition:.15s;color:var(--ink);
+  }
+  .field input:focus, .field textarea:focus{
+    outline:none;border-color:var(--accent);background:#fff;
+    box-shadow:0 0 0 4px #2563eb1a;
+  }
+  .field textarea{resize:vertical;min-height:74px}
+
+  /* photo uploader */
+  .uploader{
+    border:2px dashed var(--line);border-radius:16px;background:var(--soft);
+    padding:20px;text-align:center;cursor:pointer;transition:.15s;position:relative;
+  }
+  .uploader:hover{border-color:var(--accent);background:#fff}
+  .uploader .up-ico{font-size:38px}
+  .uploader .up-t{font-weight:700;margin-top:6px;font-size:14px}
+  .uploader .up-d{font-size:12px;color:var(--muted);margin-top:2px}
+  .uploader input{display:none}
+  .preview-wrap{position:relative;border-radius:16px;overflow:hidden;display:none}
+  .preview-wrap img{width:100%;max-height:280px;object-fit:cover;display:block}
+  .preview-wrap .rm{
+    position:absolute;top:10px;inset-inline-start:10px;background:#0009;color:#fff;
+    border:none;border-radius:999px;width:34px;height:34px;font-size:16px;cursor:pointer;
+  }
+
+  /* color picker */
+  .colors{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .col-opt{
+    border:2px solid var(--line);border-radius:14px;padding:16px 8px;text-align:center;
+    cursor:pointer;font-weight:700;font-size:14px;transition:.15s;background:var(--soft);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+  }
+  .col-dot{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 -3px 6px #0003}
+  .col-opt[data-c=green] .col-dot{background:var(--green)}
+  .col-opt[data-c=orange] .col-dot{background:var(--orange)}
+  .col-opt[data-c=red] .col-dot{background:var(--red)}
+  .col-opt.sel[data-c=green]{border-color:var(--green);background:#16a34a12;box-shadow:0 0 0 4px #16a34a1a}
+  .col-opt.sel[data-c=orange]{border-color:var(--orange);background:#ea580c12;box-shadow:0 0 0 4px #ea580c1a}
+  .col-opt.sel[data-c=red]{border-color:var(--red);background:#dc262612;box-shadow:0 0 0 4px #dc26261a}
+
+  /* buttons */
+  .btn{
+    border:none;border-radius:14px;padding:14px 22px;font-family:inherit;font-size:15px;
+    font-weight:800;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;
+    gap:8px;justify-content:center;
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+    box-shadow:0 10px 24px #2563eb44}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 30px #2563eb55}
+  .btn-ghost{background:var(--soft);color:#475569;border:2px solid var(--line)}
+  .btn-ghost:hover{background:#eef2f7}
+  .btn-green{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;box-shadow:0 10px 24px #16a34a44}
+  .btn-block{width:100%}
+  .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+  .actions{display:flex;gap:12px;margin-top:8px}
+
+  .back-link{
+    background:none;border:none;color:#a9c0e6;font-family:inherit;font-size:14px;
+    font-weight:600;cursor:pointer;margin-bottom:14px;display:inline-flex;align-items:center;gap:6px;
+  }
+  .back-link:hover{color:#fff}
+
+  /* result card (check) */
+  .rec{border:2px solid var(--line);border-radius:18px;overflow:hidden;margin-top:8px}
+  .rec .rec-photo{width:100%;max-height:300px;object-fit:cover;display:block;background:#eef2f7}
+  .rec .rec-body{padding:18px}
+  .rec .rec-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+  .rec .rec-num{font-size:22px;font-weight:900;letter-spacing:1px}
+  .pill{padding:6px 14px;border-radius:999px;font-weight:800;font-size:13px;color:#fff;display:inline-flex;align-items:center;gap:6px}
+  .pill.green{background:var(--green)} .pill.orange{background:var(--orange)} .pill.red{background:var(--red)}
+  .rec dl{display:grid;grid-template-columns:1fr;gap:10px}
+  .rec .row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px dashed var(--line)}
+  .rec .row:last-child{border-bottom:none}
+  .rec .row .k{color:var(--muted);font-size:13px;font-weight:600}
+  .rec .row .v{font-weight:700;font-size:14px;text-align:end}
+
+  .empty-note{
+    text-align:center;padding:30px 10px;color:var(--muted);
+  }
+  .empty-note .ico{font-size:44px;display:block;margin-bottom:8px}
+
+  /* toast */
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#0f2744;color:#fff;padding:14px 26px;border-radius:14px;font-weight:700;
+    font-size:14px;box-shadow:0 20px 40px #0007;opacity:0;transition:.25s;z-index:999;pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.err{background:#7f1d1d}
+  .toast.ok{background:#14532d}
+
+  .spinner{width:18px;height:18px;border:3px solid #ffffff66;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+  .fb-tag{position:fixed;bottom:10px;inset-inline-end:12px;font-size:11px;color:#ffffff44}
+</style>
+</head>
+<body>
+
+  <div class="brand">
+    <div class="logo">🚗</div>
+    <div>
+      <h1>מערכת אסף</h1>
+      <div class="sub">בקרת רכבים · הזנה ובדיקה</div>
+    </div>
+  </div>
+
+  <div class="crumbs" id="crumbs"></div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="toast" id="toast"></div>
+  <div class="fb-tag" id="fbTag"></div>
+
+<script>
+/* =========================================================
+   מערכת אסף — קובץ יחיד, Firebase חינמי (נתיב /asaf)
+   ========================================================= */
+var FIREBASE_URL = 'https://security-event-check-default-rtdb.europe-west1.firebasedatabase.app';
+
+var LOCATIONS = [
+  { key:'mauro',   name:'מאורו',  ico:'🏛️' },
+  { key:'lavazza', name:'לוואצה', ico:'☕' },
+  { key:'armon',   name:'ארמון',  ico:'🏰' }
+];
+var COLORS = {
+  green:{ label:'ירוק',  he:'תקין' },
+  orange:{ label:'כתום', he:'לתשומת לב' },
+  red:{ label:'אדום',   he:'בעיה' }
+};
+
+// state
+var state = { loc:null, action:null };
+
+/* ---------- utilities ---------- */
+function el(id){ return document.getElementById(id); }
+function locName(k){ var l=LOCATIONS.filter(function(x){return x.key===k;})[0]; return l?l.name:''; }
+function locIco(k){ var l=LOCATIONS.filter(function(x){return x.key===k;})[0]; return l?l.ico:''; }
+function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function sanitizeKey(v){ return String(v||'').trim().replace(/[.#$\[\]\/]/g,'_').replace(/\s+/g,'_'); }
+function useLocal(){ return !FIREBASE_URL || FIREBASE_URL.indexOf('YOUR-PROJECT')>=0; }
+
+function toast(msg, type){
+  var t=el('toast'); t.textContent=msg; t.className='toast show '+(type||'');
+  clearTimeout(window._tt); window._tt=setTimeout(function(){ t.className='toast'; }, 2800);
+}
+
+/* ---------- Firebase / local storage ---------- */
+function recPath(loc, key){ return FIREBASE_URL+'/asaf/'+encodeURIComponent(loc)+'/'+encodeURIComponent(key)+'.json'; }
+
+function saveRecord(loc, key, data){
+  if(useLocal()){
+    var all=JSON.parse(localStorage.getItem('asafRecords')||'{}');
+    all[loc]=all[loc]||{}; all[loc][key]=data;
+    localStorage.setItem('asafRecords', JSON.stringify(all));
+    return Promise.resolve();
+  }
+  return fetch(recPath(loc,key), {
+    method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)
+  }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); });
+}
+
+function getRecord(loc, key){
+  if(useLocal()){
+    var all=JSON.parse(localStorage.getItem('asafRecords')||'{}');
+    return Promise.resolve((all[loc]&&all[loc][key])||null);
+  }
+  return fetch(recPath(loc,key)).then(function(r){
+    if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
+  });
+}
+
+/* ---------- breadcrumbs ---------- */
+function renderCrumbs(){
+  var html='';
+  html+='<span class="crumb '+(!state.loc?'active':'')+'"><span class="c-ico">📍</span>אתר'+(state.loc?': '+locName(state.loc):'')+'</span>';
+  if(state.loc){
+    html+='<span class="crumb '+(!state.action?'active':'')+'">'+(state.action?
+      (state.action==='enter'?'✍️ הזנה':'🔍 בדיקה'):'פעולה')+'</span>';
+  }
+  el('crumbs').innerHTML=html;
+}
+
+/* =========================================================
+   מסך 1 — בחירת אתר
+   ========================================================= */
+function screenLocation(){
+  state.loc=null; state.action=null; renderCrumbs();
+  var cards=LOCATIONS.map(function(l){
+    return '<div class="choice" onclick="chooseLocation(\''+l.key+'\')">'+
+      '<span class="ico">'+l.ico+'</span>'+
+      '<div class="t">'+l.name+'</div>'+
+      '<div class="d">לחצו לבחירה</div></div>';
+  }).join('');
+  el('stage').innerHTML=
+    '<div class="panel">'+
+      '<h2>בחירת אתר</h2>'+
+      '<p class="lead">בחרו את האתר שברצונכם לעבוד עליו</p>'+
+      '<div class="grid three">'+cards+'</div>'+
+    '</div>';
+}
+function chooseLocation(k){ state.loc=k; state.action=null; screenAction(); }
+
+/* =========================================================
+   מסך 2 — בחירת פעולה
+   ========================================================= */
+function screenAction(){
+  renderCrumbs();
+  el('stage').innerHTML=
+    '<div class="panel">'+
+      '<button class="back-link" onclick="screenLocation()">→ חזרה לבחירת אתר</button>'+
+      '<h2>'+locIco(state.loc)+' '+locName(state.loc)+'</h2>'+
+      '<p class="lead">מה תרצו לעשות?</p>'+
+      '<div class="grid two">'+
+        '<div class="choice act enter" onclick="chooseAction(\'enter\')">'+
+          '<span class="ico">✍️</span><div class="t">הזנה</div>'+
+          '<div class="d">רישום רכב חדש</div></div>'+
+        '<div class="choice act check" onclick="chooseAction(\'check\')">'+
+          '<span class="ico">🔍</span><div class="t">בדיקה</div>'+
+          '<div class="d">חיפוש לפי מספר רכב</div></div>'+
+      '</div>'+
+    '</div>';
+}
+function chooseAction(a){
+  state.action=a; renderCrumbs();
+  if(a==='enter') screenEntry(null);
+  else screenCheck();
+}
+
+/* =========================================================
+   מסך הזנה / עריכה
+   editData = null → רכב חדש ; אחרת עריכת רשומה קיימת
+   ========================================================= */
+var photoData = null; // base64 של התמונה הנוכחית
+var selectedColor = null;
+
+function screenEntry(editData){
+  renderCrumbs();
+  photoData = editData ? (editData.photo||null) : null;
+  selectedColor = editData ? (editData.color||null) : null;
+  var isEdit = !!editData;
+
+  el('stage').innerHTML=
+    '<div class="panel">'+
+      '<button class="back-link" onclick="'+(isEdit?'screenCheck()':'screenAction()')+'">→ '+(isEdit?'חזרה לבדיקה':'חזרה')+'</button>'+
+      '<h2>'+(isEdit?'עריכת רכב':'הזנת רכב')+' · '+locName(state.loc)+'</h2>'+
+      '<p class="lead">'+(isEdit?'עדכנו את פרטי הרכב ושמרו':'מלאו את פרטי הרכב. שדות עם * הם חובה')+'</p>'+
+
+      '<div class="field">'+
+        '<label>תמונת רכב <span class="req">*</span></label>'+
+        '<div class="uploader" id="uploader" onclick="el(\'photoInput\').click()">'+
+          '<div class="up-ico">📷</div>'+
+          '<div class="up-t">לחצו לצילום / העלאת תמונה</div>'+
+          '<div class="up-d">חובה — תמונה אחת של הרכב</div>'+
+          '<input type="file" id="photoInput" accept="image/*" capture="environment" onchange="onPhoto(this)">'+
+        '</div>'+
+        '<div class="preview-wrap" id="previewWrap">'+
+          '<button class="rm" onclick="removePhoto()">✕</button>'+
+          '<img id="previewImg" alt="תצוגה מקדימה">'+
+        '</div>'+
+      '</div>'+
+
+      '<div class="field">'+
+        '<label>מספר רכב <span class="req">*</span></label>'+
+        '<input type="text" id="fNum" placeholder="לדוגמה: 12-345-67" value="'+(isEdit?esc(editData.vehicleNumber):'')+'" '+(isEdit?'readonly style="background:#eef2f7;cursor:not-allowed"':'')+'>'+
+        (isEdit?'<div class="hint">לא ניתן לשנות מספר רכב בעריכה</div>':'')+
+      '</div>'+
+
+      '<div class="field">'+
+        '<label>תיאור הרכב</label>'+
+        '<textarea id="fDesc" placeholder="דגם, צבע, מאפיינים...">'+(isEdit?esc(editData.description):'')+'</textarea>'+
+      '</div>'+
+
+      '<div class="field">'+
+        '<label>סמ״ח</label>'+
+        '<input type="text" id="fSamach" placeholder="סמ״ח" value="'+(isEdit?esc(editData.samach):'')+'">'+
+      '</div>'+
+
+      '<div class="field">'+
+        '<label>בעלים</label>'+
+        '<input type="text" id="fOwner" placeholder="שם הבעלים" value="'+(isEdit?esc(editData.owner):'')+'">'+
+      '</div>'+
+
+      '<div class="field">'+
+        '<label>מגיש הדו״ח</label>'+
+        '<input type="text" id="fReporter" placeholder="שם מגיש הדו״ח" value="'+(isEdit?esc(editData.reporter):'')+'">'+
+      '</div>'+
+
+      '<div class="field">'+
+        '<label>סטטוס / צבע <span class="req">*</span></label>'+
+        '<div class="colors">'+
+          colOpt('green')+colOpt('orange')+colOpt('red')+
+        '</div>'+
+      '</div>'+
+
+      '<div class="actions">'+
+        '<button class="btn btn-primary btn-block" id="submitBtn" onclick="submitEntry('+(isEdit?'true':'false')+')">'+
+          (isEdit?'💾 שמירת שינויים':'✅ שמירה')+'</button>'+
+      '</div>'+
+    '</div>';
+
+  if(photoData) showPreview(photoData);
+  if(selectedColor) markColor(selectedColor);
+}
+
+function colOpt(c){
+  return '<div class="col-opt" data-c="'+c+'" onclick="pickColor(\''+c+'\')">'+
+    '<span class="col-dot"></span>'+COLORS[c].label+'</div>';
+}
+function pickColor(c){ selectedColor=c; markColor(c); }
+function markColor(c){
+  var opts=document.querySelectorAll('.col-opt');
+  for(var i=0;i<opts.length;i++){ opts[i].classList.toggle('sel', opts[i].getAttribute('data-c')===c); }
+}
+
+/* photo handling with compression */
+function onPhoto(input){
+  var file=input.files&&input.files[0]; if(!file) return;
+  compressImage(file, function(b64){ photoData=b64; showPreview(b64); });
+}
+function compressImage(file, cb){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var maxW=1100, scale=Math.min(1, maxW/img.width);
+      var cw=Math.round(img.width*scale), ch=Math.round(img.height*scale);
+      var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
+      canvas.getContext('2d').drawImage(img,0,0,cw,ch);
+      cb(canvas.toDataURL('image/jpeg', 0.6));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function showPreview(b64){
+  el('previewImg').src=b64;
+  el('previewWrap').style.display='block';
+  el('uploader').style.display='none';
+}
+function removePhoto(){
+  photoData=null; el('photoInput').value='';
+  el('previewWrap').style.display='none';
+  el('uploader').style.display='block';
+}
+
+/* submit */
+function submitEntry(isEdit){
+  var num=(el('fNum').value||'').trim();
+  if(!photoData){ toast('חובה להוסיף תמונת רכב','err'); return; }
+  if(!num){ toast('חובה להזין מספר רכב','err'); el('fNum').focus(); return; }
+  if(!selectedColor){ toast('חובה לבחור צבע/סטטוס','err'); return; }
+
+  var key=sanitizeKey(num);
+  var now=new Date().toISOString();
+  var data={
+    vehicleNumber:num,
+    photo:photoData,
+    description:(el('fDesc').value||'').trim(),
+    samach:(el('fSamach').value||'').trim(),
+    owner:(el('fOwner').value||'').trim(),
+    reporter:(el('fReporter').value||'').trim(),
+    color:selectedColor,
+    location:state.loc,
+    updatedAt:now
+  };
+
+  var btn=el('submitBtn'); var orig=btn.innerHTML;
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> שומר...';
+
+  var finish=function(existing){
+    if(!isEdit && !existing) data.createdAt=now;
+    else data.createdAt=(existing&&existing.createdAt)||now;
+    saveRecord(state.loc, key, data).then(function(){
+      toast(isEdit?'✅ השינויים נשמרו':'✅ הרכב נשמר בהצלחה','ok');
+      screenSuccess(data, isEdit);
+    }).catch(function(err){
+      btn.disabled=false; btn.innerHTML=orig;
+      toast('שגיאה בשמירה: '+err.message,'err');
+    });
+  };
+
+  // בהזנה חדשה — בדיקה אם כבר קיים רכב עם אותו מספר
+  if(!isEdit){
+    getRecord(state.loc, key).then(function(existing){
+      if(existing){
+        btn.disabled=false; btn.innerHTML=orig;
+        if(confirm('רכב עם מספר '+num+' כבר קיים באתר '+locName(state.loc)+'.\nלעדכן את הרשומה הקיימת?')){
+          btn.disabled=true; btn.innerHTML='<span class="spinner"></span> שומר...';
+          finish(existing);
+        }
+      } else { finish(null); }
+    }).catch(function(){ finish(null); });
+  } else {
+    getRecord(state.loc, key).then(finish).catch(function(){ finish(null); });
+  }
+}
+
+/* success screen */
+function screenSuccess(data, wasEdit){
+  el('stage').innerHTML=
+    '<div class="panel" style="text-align:center">'+
+      '<div style="font-size:60px;margin-bottom:6px">'+(wasEdit?'💾':'🎉')+'</div>'+
+      '<h2>'+(wasEdit?'השינויים נשמרו':'הרכב נשמר בהצלחה')+'</h2>'+
+      '<p class="lead" style="text-align:center">רכב <b>'+esc(data.vehicleNumber)+'</b> · '+locName(state.loc)+'</p>'+
+      recCardHTML(data, false)+
+      '<div class="actions" style="margin-top:20px">'+
+        '<button class="btn btn-ghost btn-block" onclick="screenEntry('+jsonAttr(data)+')">✏️ המשך עריכה</button>'+
+        '<button class="btn btn-primary btn-block" onclick="screenAction()">➕ רכב נוסף</button>'+
+      '</div>'+
+    '</div>';
+}
+function jsonAttr(obj){
+  // מחזיר קריאה בטוחה לעריכה — שומר את הרשומה בגלובלי זמני
+  window._editBuf=obj; return 'window._editBuf';
+}
+
+/* =========================================================
+   מסך בדיקה — חיפוש לפי מספר רכב
+   ========================================================= */
+function screenCheck(){
+  renderCrumbs();
+  el('stage').innerHTML=
+    '<div class="panel">'+
+      '<button class="back-link" onclick="screenAction()">→ חזרה</button>'+
+      '<h2>🔍 בדיקת רכב · '+locName(state.loc)+'</h2>'+
+      '<p class="lead">הזינו מספר רכב כדי לשלוף את הנתונים השמורים</p>'+
+      '<div class="field">'+
+        '<label>מספר רכב</label>'+
+        '<input type="text" id="cNum" placeholder="הקלידו מספר רכב..." onkeydown="if(event.key===\'Enter\')doCheck()">'+
+      '</div>'+
+      '<button class="btn btn-primary btn-block" id="checkBtn" onclick="doCheck()">🔍 חיפוש</button>'+
+      '<div id="checkResult" style="margin-top:22px"></div>'+
+    '</div>';
+  setTimeout(function(){ var i=el('cNum'); if(i) i.focus(); }, 100);
+}
+
+function doCheck(){
+  var num=(el('cNum').value||'').trim();
+  if(!num){ toast('הזינו מספר רכב','err'); return; }
+  var key=sanitizeKey(num);
+  var btn=el('checkBtn'); var orig=btn.innerHTML;
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> מחפש...';
+  getRecord(state.loc, key).then(function(rec){
+    btn.disabled=false; btn.innerHTML=orig;
+    if(!rec){
+      el('checkResult').innerHTML=
+        '<div class="empty-note">'+
+          '<span class="ico">🚫</span>'+
+          'לא נמצא רכב עם מספר <b>'+esc(num)+'</b> באתר '+locName(state.loc)+'.'+
+          '<div style="margin-top:16px"><button class="btn btn-green" onclick="startNewFromCheck(\''+esc(num).replace(/'/g,"")+'\')">➕ הזנת רכב זה</button></div>'+
+        '</div>';
+      return;
+    }
+    el('checkResult').innerHTML=
+      recCardHTML(rec, true)+
+      '<div class="actions" style="margin-top:16px">'+
+        '<button class="btn btn-primary btn-block" onclick="editFound()">✏️ עריכה / הוספת מידע</button>'+
+      '</div>';
+    window._foundRec=rec;
+  }).catch(function(err){
+    btn.disabled=false; btn.innerHTML=orig;
+    toast('שגיאה בחיפוש: '+err.message,'err');
+  });
+}
+function editFound(){ if(window._foundRec) screenEntry(window._foundRec); }
+function startNewFromCheck(num){
+  screenEntry(null);
+  setTimeout(function(){ var f=el('fNum'); if(f){ f.value=num; } }, 60);
+}
+
+/* כרטיס תצוגת רשומה */
+function recCardHTML(rec, withPhoto){
+  var c=rec.color||'green';
+  var pill='<span class="pill '+c+'">'+(COLORS[c]?COLORS[c].label:'')+' · '+(COLORS[c]?COLORS[c].he:'')+'</span>';
+  var photo = rec.photo ? '<img class="rec-photo" src="'+rec.photo+'" alt="רכב">' : '';
+  var rows='';
+  function row(k,v){ if(!v) return ''; return '<div class="row"><span class="k">'+k+'</span><span class="v">'+esc(v)+'</span></div>'; }
+  rows+=row('מספר רכב', rec.vehicleNumber);
+  rows+=row('תיאור', rec.description);
+  rows+=row('סמ״ח', rec.samach);
+  rows+=row('בעלים', rec.owner);
+  rows+=row('מגיש הדו״ח', rec.reporter);
+  rows+=row('אתר', locName(rec.location));
+  if(rec.updatedAt) rows+=row('עודכן', new Date(rec.updatedAt).toLocaleString('he-IL'));
+  return '<div class="rec">'+photo+'<div class="rec-body">'+
+    '<div class="rec-top"><span class="rec-num">'+esc(rec.vehicleNumber)+'</span>'+pill+'</div>'+
+    '<div>'+rows+'</div></div></div>';
+}
+
+/* =========================================================
+   PWA — התקנה כאפליקציה + עבודה ללא אינטרנט
+   ========================================================= */
+(function setupPWA(){
+  var ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233b82f6'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='112' fill='url(%23g)'/%3E%3Ctext x='256' y='352' font-size='270' text-anchor='middle'%3E%F0%9F%9A%97%3C/text%3E%3C/svg%3E";
+  // manifest מוטמע (ללא צורך בקובץ נפרד)
+  var manifest = {
+    name: 'מערכת אסף', short_name: 'אסף',
+    description: 'בקרת רכבים — הזנה ובדיקה',
+    start_url: '.', scope: '.', display: 'standalone',
+    orientation: 'portrait', dir: 'rtl', lang: 'he',
+    background_color: '#0b1220', theme_color: '#0b1220',
+    icons: [
+      { src: ICON, sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+      { src: ICON, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
+    ]
+  };
+  try {
+    var mBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+    var link = document.createElement('link');
+    link.rel = 'manifest'; link.href = URL.createObjectURL(mBlob);
+    document.head.appendChild(link);
+  } catch(e){}
+
+  // service worker לעבודה ללא אינטרנט (טעון מקובץ נפרד sw.js)
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){ /* לא קריטי */ });
+    });
+  }
+})();
+
+/* ---------- boot ---------- */
+el('fbTag').textContent = useLocal() ? 'מצב מקומי (ללא Firebase)' : 'מחובר · Firebase';
+screenLocation();
+</script>
+</body>
+</html>
