@@ -241,7 +241,7 @@ function el(id){ return document.getElementById(id); }
 function locName(k){ var l=LOCATIONS.filter(function(x){return x.key===k;})[0]; return l?l.name:''; }
 function locIco(k){ var l=LOCATIONS.filter(function(x){return x.key===k;})[0]; return l?l.ico:''; }
 function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function sanitizeKey(v){ return String(v||'').trim().replace(/[.#$\[\]\/]/g,'_').replace(/\s+/g,'_'); }
+function sanitizeKey(v){ return String(v||'').trim().toUpperCase().replace(/[.#$\[\]\/]/g,'_').replace(/\s+/g,'_'); }
 function useLocal(){ return !FIREBASE_URL || FIREBASE_URL.indexOf('YOUR-PROJECT')>=0; }
 
 function toast(msg, type){
