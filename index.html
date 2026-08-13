@@ -157,10 +157,12 @@
   .actions{display:flex;gap:12px;margin-top:8px}
 
   .back-link{
-    background:none;border:none;color:#a9c0e6;font-family:inherit;font-size:14px;
-    font-weight:600;cursor:pointer;margin-bottom:14px;display:inline-flex;align-items:center;gap:6px;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;color:#fff;
+    font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:16px;
+    display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:12px;
+    box-shadow:0 6px 16px #2563eb44;transition:.15s;
   }
-  .back-link:hover{color:#fff}
+  .back-link:hover{transform:translateY(-2px);box-shadow:0 10px 22px #2563eb66;filter:brightness(1.08)}
 
   /* result card (check) */
   .rec{border:2px solid var(--line);border-radius:18px;overflow:hidden;margin-top:8px}
@@ -272,6 +274,19 @@ function getRecord(loc, key){
   });
 }
 
+// חיפוש רכב בכל האתרים — מחזיר מערך של רשומות תואמות (לכל רשומה יש location)
+function getRecordAllLocations(key){
+  if(useLocal()){
+    var all=JSON.parse(localStorage.getItem('asafRecords')||'{}');
+    var out=[];
+    LOCATIONS.forEach(function(l){ if(all[l.key]&&all[l.key][key]) out.push(all[l.key][key]); });
+    return Promise.resolve(out);
+  }
+  return Promise.all(LOCATIONS.map(function(l){
+    return fetch(recPath(l.key,key)).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; });
+  })).then(function(results){ return results.filter(function(x){ return x; }); });
+}
+
 /* ---------- breadcrumbs ---------- */
 function renderCrumbs(){
   var html='';
@@ -335,17 +350,19 @@ function chooseAction(a){
    ========================================================= */
 var photoData = null; // base64 של התמונה הנוכחית
 var selectedColor = null;
+var entryLoc = null;  // האתר שאליו תישמר הרשומה (בעריכה — האתר המקורי של הרכב)
 
 function screenEntry(editData){
   renderCrumbs();
   photoData = editData ? (editData.photo||null) : null;
   selectedColor = editData ? (editData.color||null) : null;
   var isEdit = !!editData;
+  entryLoc = isEdit ? (editData.location || state.loc) : state.loc;
 
   el('stage').innerHTML=
     '<div class="panel">'+
       '<button class="back-link" onclick="'+(isEdit?'screenCheck()':'screenAction()')+'">→ '+(isEdit?'חזרה לבדיקה':'חזרה')+'</button>'+
-      '<h2>'+(isEdit?'עריכת רכב':'הזנת רכב')+' · '+locName(state.loc)+'</h2>'+
+      '<h2>'+(isEdit?'עריכת רכב':'הזנת רכב')+' · '+locName(entryLoc)+'</h2>'+
       '<p class="lead">'+(isEdit?'עדכנו את פרטי הרכב ושמרו':'מלאו את פרטי הרכב. שדות עם * הם חובה')+'</p>'+
 
       '<div class="field">'+
@@ -379,8 +396,8 @@ function screenEntry(editData){
       '</div>'+
 
       '<div class="field">'+
-        '<label>בעלים</label>'+
-        '<input type="text" id="fOwner" placeholder="שם הבעלים" value="'+(isEdit?esc(editData.owner):'')+'">'+
+        '<label>תיאור בעלים</label>'+
+        '<textarea id="fOwner" placeholder="תיאור כללי של הבעלים...">'+(isEdit?esc(editData.owner):'')+'</textarea>'+
       '</div>'+
 
       '<div class="field">'+
@@ -453,6 +470,7 @@ function submitEntry(isEdit){
   if(!num){ toast('חובה להזין מספר רכב','err'); el('fNum').focus(); return; }
   if(!selectedColor){ toast('חובה לבחור צבע/סטטוס','err'); return; }
 
+  var loc = entryLoc || state.loc;
   var key=sanitizeKey(num);
   var now=new Date().toISOString();
   var data={
@@ -463,7 +481,7 @@ function submitEntry(isEdit){
     owner:(el('fOwner').value||'').trim(),
     reporter:(el('fReporter').value||'').trim(),
     color:selectedColor,
-    location:state.loc,
+    location:loc,
     updatedAt:now
   };
 
@@ -473,7 +491,7 @@ function submitEntry(isEdit){
   var finish=function(existing){
     if(!isEdit && !existing) data.createdAt=now;
     else data.createdAt=(existing&&existing.createdAt)||now;
-    saveRecord(state.loc, key, data).then(function(){
+    saveRecord(loc, key, data).then(function(){
       toast(isEdit?'✅ השינויים נשמרו':'✅ הרכב נשמר בהצלחה','ok');
       screenSuccess(data, isEdit);
     }).catch(function(err){
@@ -484,17 +502,17 @@ function submitEntry(isEdit){
 
   // בהזנה חדשה — בדיקה אם כבר קיים רכב עם אותו מספר
   if(!isEdit){
-    getRecord(state.loc, key).then(function(existing){
+    getRecord(loc, key).then(function(existing){
       if(existing){
         btn.disabled=false; btn.innerHTML=orig;
-        if(confirm('רכב עם מספר '+num+' כבר קיים באתר '+locName(state.loc)+'.\nלעדכן את הרשומה הקיימת?')){
+        if(confirm('רכב עם מספר '+num+' כבר קיים באתר '+locName(loc)+'.\nלעדכן את הרשומה הקיימת?')){
           btn.disabled=true; btn.innerHTML='<span class="spinner"></span> שומר...';
           finish(existing);
         }
       } else { finish(null); }
     }).catch(function(){ finish(null); });
   } else {
-    getRecord(state.loc, key).then(finish).catch(function(){ finish(null); });
+    getRecord(loc, key).then(finish).catch(function(){ finish(null); });
   }
 }
 
@@ -504,7 +522,7 @@ function screenSuccess(data, wasEdit){
     '<div class="panel" style="text-align:center">'+
       '<div style="font-size:60px;margin-bottom:6px">'+(wasEdit?'💾':'🎉')+'</div>'+
       '<h2>'+(wasEdit?'השינויים נשמרו':'הרכב נשמר בהצלחה')+'</h2>'+
-      '<p class="lead" style="text-align:center">רכב <b>'+esc(data.vehicleNumber)+'</b> · '+locName(state.loc)+'</p>'+
+      '<p class="lead" style="text-align:center">רכב <b>'+esc(data.vehicleNumber)+'</b> · '+locName(data.location)+'</p>'+
       recCardHTML(data, false)+
       '<div class="actions" style="margin-top:20px">'+
         '<button class="btn btn-ghost btn-block" onclick="screenEntry('+jsonAttr(data)+')">✏️ המשך עריכה</button>'+
@@ -543,29 +561,35 @@ function doCheck(){
   var key=sanitizeKey(num);
   var btn=el('checkBtn'); var orig=btn.innerHTML;
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> מחפש...';
-  getRecord(state.loc, key).then(function(rec){
+  getRecordAllLocations(key).then(function(recs){
     btn.disabled=false; btn.innerHTML=orig;
-    if(!rec){
+    window._foundRecs=recs;
+    if(!recs.length){
       el('checkResult').innerHTML=
         '<div class="empty-note">'+
           '<span class="ico">🚫</span>'+
-          'לא נמצא רכב עם מספר <b>'+esc(num)+'</b> באתר '+locName(state.loc)+'.'+
+          'לא נמצא רכב עם מספר <b>'+esc(num)+'</b> באף אחד מהאתרים.'+
           '<div style="margin-top:16px"><button class="btn btn-green" onclick="startNewFromCheck(\''+esc(num).replace(/'/g,"")+'\')">➕ הזנת רכב זה</button></div>'+
         '</div>';
       return;
     }
-    el('checkResult').innerHTML=
-      recCardHTML(rec, true)+
-      '<div class="actions" style="margin-top:16px">'+
-        '<button class="btn btn-primary btn-block" onclick="editFound()">✏️ עריכה / הוספת מידע</button>'+
-      '</div>';
-    window._foundRec=rec;
+    var html='';
+    if(recs.length>1){
+      html+='<div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px">🔎 נמצאו '+recs.length+' רשומות במספר אתרים</div>';
+    }
+    recs.forEach(function(rec, i){
+      html+=recCardHTML(rec, true)+
+        '<div class="actions" style="margin-top:16px;margin-bottom:'+(recs.length>1?'24':'0')+'px">'+
+          '<button class="btn btn-primary btn-block" onclick="editFoundIdx('+i+')">✏️ עריכה / הוספת מידע'+(recs.length>1?' · '+locName(rec.location):'')+'</button>'+
+        '</div>';
+    });
+    el('checkResult').innerHTML=html;
   }).catch(function(err){
     btn.disabled=false; btn.innerHTML=orig;
     toast('שגיאה בחיפוש: '+err.message,'err');
   });
 }
-function editFound(){ if(window._foundRec) screenEntry(window._foundRec); }
+function editFoundIdx(i){ if(window._foundRecs&&window._foundRecs[i]) screenEntry(window._foundRecs[i]); }
 function startNewFromCheck(num){
   screenEntry(null);
   setTimeout(function(){ var f=el('fNum'); if(f){ f.value=num; } }, 60);
@@ -581,7 +605,7 @@ function recCardHTML(rec, withPhoto){
   rows+=row('מספר רכב', rec.vehicleNumber);
   rows+=row('תיאור', rec.description);
   rows+=row('סמ״ח', rec.samach);
-  rows+=row('בעלים', rec.owner);
+  rows+=row('תיאור בעלים', rec.owner);
   rows+=row('מגיש הדו״ח', rec.reporter);
   rows+=row('אתר', locName(rec.location));
   if(rec.updatedAt) rows+=row('עודכן', new Date(rec.updatedAt).toLocaleString('he-IL'));
