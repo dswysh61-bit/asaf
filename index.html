@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he" dir="rtl" class="locked">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src https://security-event-check-default-rtdb.europe-west1.firebasedatabase.app https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://fonts.gstatic.com; worker-src 'self'; manifest-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>מערכת אסף</title>
 
 <!-- ===== PWA ===== -->
@@ -197,30 +199,189 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   .hint{font-size:12px;color:var(--muted);margin-top:6px}
   .fb-tag{position:fixed;bottom:10px;inset-inline-end:12px;font-size:11px;color:#ffffff44}
+
+  /* =========================================================
+     תוספות: התחברות, לשוניות, אזור חשודים
+     ========================================================= */
+  .app-shell{width:100%;display:flex;flex-direction:column;align-items:center}
+  html.locked .app-shell{display:none}
+
+  /* login */
+  #loginOverlay{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;
+    background:radial-gradient(1200px 600px at 80% -10%, #1e3a8a33, transparent),
+               radial-gradient(1000px 500px at -10% 110%, #0891b233, transparent),
+               linear-gradient(160deg,var(--bg1),var(--bg2));}
+  html.locked #loginOverlay{display:flex}
+  .login-card{background:#fff;border-radius:24px;box-shadow:0 30px 60px #0006;padding:30px 26px;width:100%;max-width:380px;text-align:center;animation:rise .35s cubic-bezier(.2,.8,.2,1)}
+  .login-card .logo{width:64px;height:64px;border-radius:20px;margin:0 auto 10px;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 14px 40px #0ea5e955}
+  .login-card h2{font-size:22px;font-weight:900;margin-bottom:4px}
+  .login-card p{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .login-card .field{text-align:right}
+  .login-err{color:var(--red);font-size:13px;font-weight:700;margin-top:12px;min-height:1.2em}
+  .login-info{color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;font-size:12px;padding:8px 10px;margin-bottom:14px;display:none}
+
+  .field input[type=email], .field input[type=password], .field input[type=date], .field input[type=search]{
+    width:100%;border:2px solid var(--line);border-radius:12px;
+    padding:12px 14px;font-family:inherit;font-size:15px;background:var(--soft);
+    transition:.15s;color:var(--ink);
+  }
+  .field input[type=email], .field input[type=password]{direction:ltr;text-align:left}
+
+  /* app bar */
+  .appbar{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:12px}
+  .tab{background:#ffffff14;color:#dbeafe;border:1px solid #ffffff22;padding:8px 18px;border-radius:999px;
+    font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;transition:.15s}
+  .tab:hover{background:#ffffff22}
+  .tab.active{background:#fff;color:var(--ink)}
+  .user-chip{color:#a9c0e6;font-size:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;width:100%}
+  .user-chip b{color:#dbeafe}
+  .user-chip button{background:transparent;border:1px solid #ffffff33;color:#dbeafe;border-radius:999px;padding:3px 10px;
+    font-family:inherit;font-size:12px;cursor:pointer}
+  .user-chip button:hover{border-color:#fca5a5;color:#fecaca}
+
+  .stage.wide{max-width:1120px}
+  .choice.locked{opacity:.55;cursor:not-allowed}
+  .choice.locked:hover{transform:none;box-shadow:none;border-color:var(--line);background:var(--soft)}
+
+  /* notices */
+  .notice{border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.65;margin-bottom:14px}
+  .notice.info{background:#eff6ff;color:#1e3a8a;border:1px solid #bfdbfe}
+  .notice.warn{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+  .notice.err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+  .notice.ok{background:#f0fdf4;color:#14532d;border:1px solid #bbf7d0}
+  .notice ul{margin:6px 18px 0 0}
+  .section-t{font-size:16px;font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:8px}
+  .section-t .num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;display:inline-flex;align-items:center;justify-content:center}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+  .btn-sm{padding:10px 14px;font-size:13px;border-radius:12px}
+  .btn-red{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;box-shadow:0 10px 24px #dc262644}
+  .file-btn{position:relative;overflow:hidden}
+  .file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+  /* column guide */
+  .cols-guide{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+  .cols-guide th,.cols-guide td{border:1px solid #bfdbfe;padding:6px 8px;text-align:right}
+  .cols-guide th{background:#dbeafe}
+
+  /* tables */
+  .tbl-wrap{overflow-x:auto;border:2px solid var(--line);border-radius:16px;background:#fff}
+  table.gt{width:100%;border-collapse:collapse;font-size:13px;min-width:760px}
+  table.gt th{background:var(--soft);font-weight:800;text-align:right;padding:10px 8px;border-bottom:2px solid var(--line);white-space:nowrap;color:#334155}
+  table.gt td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  table.gt tr:last-child td{border-bottom:none}
+  table.gt td input, table.gt td textarea{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:7px 9px;
+    font-family:inherit;font-size:13px;background:#fff;color:var(--ink)}
+  table.gt td textarea{resize:vertical;min-height:36px;height:36px}
+  table.gt td input:focus, table.gt td textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px #2563eb1a}
+  table.gt td input.bad{border-color:var(--red);background:#fef2f2}
+  table.gt td.rn{color:var(--muted);font-weight:700;width:34px;text-align:center}
+  table.gt tr.row-empty td{background:#fafafa}
+  .bad-hint{font-size:11px;color:var(--red);margin-top:3px}
+  .thumb{width:46px;height:46px;border-radius:10px;object-fit:cover;display:block;background:#eef2f7}
+  .ph-cell{display:flex;align-items:center;gap:6px;min-width:96px}
+  .ph-ref{font-size:11px;color:var(--orange);font-weight:700;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mini-btn{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:6px 9px;cursor:pointer;font-size:13px;font-family:inherit;color:#475569}
+  .mini-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .mini-btn.del:hover{border-color:var(--red);color:var(--red)}
+
+  /* results */
+  .sum-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  @media(max-width:620px){.sum-row{grid-template-columns:repeat(2,1fr)}}
+  .sum-box{border-radius:14px;padding:12px;text-align:center;font-weight:800;font-size:13px}
+  .sum-box .n{font-size:26px;font-weight:900;display:block}
+  .sum-box.red{background:#fef2f2;color:#991b1b} .sum-box.orange{background:#fff7ed;color:#9a3412}
+  .sum-box.green{background:#f0fdf4;color:#14532d} .sum-box.gray{background:#f1f5f9;color:#475569}
+  .st{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;font-weight:800;font-size:12px;white-space:nowrap}
+  .st.match{background:var(--red);color:#fff} .st.review{background:var(--orange);color:#fff}
+  .st.none{background:var(--green);color:#fff} .st.skip{background:#e2e8f0;color:#475569}
+  .cand{border:1.5px solid var(--line);border-radius:12px;padding:8px;display:flex;gap:10px;margin:4px 0;background:var(--soft);min-width:280px}
+  .cand img{width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;background:#e2e8f0}
+  .cand .noimg{width:72px;height:72px;border-radius:10px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+  .cand .cn{font-weight:800;font-size:14px}
+  .cand .cm{font-size:12px;color:var(--muted);line-height:1.5}
+  .mf{font-size:12px;margin-top:3px}
+  .mf .y{color:var(--green);font-weight:800} .mf .p{color:var(--orange);font-weight:800} .mf .n{color:var(--muted)}
+  .cand-note{font-size:12px;font-weight:700;color:#9a3412;margin-top:2px}
+  .cand.lvl-match{border-color:#fca5a5;background:#fff5f5}
+
+  /* modal */
+  .modal-bg{position:fixed;inset:0;background:#0b1220cc;display:flex;align-items:center;justify-content:center;z-index:500;padding:16px}
+  .modal{background:#fff;border-radius:22px;max-width:560px;width:100%;padding:24px;max-height:90vh;overflow:auto;animation:rise .25s}
+  .modal h3{font-size:19px;font-weight:900;margin-bottom:10px}
+  .modal .rec{margin-bottom:12px}
+  .paste-box{width:100%;min-height:90px;border:2px dashed var(--line);border-radius:14px;padding:12px;font-family:inherit;font-size:13px;background:var(--soft);resize:vertical}
+  .paste-box:focus{outline:none;border-color:var(--accent);background:#fff}
+  .search-row{display:flex;gap:10px;margin-bottom:12px}
+  .search-row input{flex:1}
+  .muted{color:var(--muted)}
+  .sec-note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.6}
+
+  /* מאגר רכבים */
+  .vfilters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .vfilters input[type=search], .vfilters select{border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-family:inherit;font-size:14px;background:var(--soft);color:var(--ink)}
+  .vfilters input[type=search]{flex:1;min-width:220px}
+  .vfilters input:focus, .vfilters select:focus{outline:none;border-color:var(--accent);background:#fff}
+  .vchips{display:flex;gap:6px;flex-wrap:wrap}
+  .vchip{border:2px solid var(--line);background:var(--soft);border-radius:999px;padding:7px 12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#334155}
+  .vchip[data-c=green] .col-dot{background:var(--green)} .vchip[data-c=orange] .col-dot{background:var(--orange)} .vchip[data-c=red] .col-dot{background:var(--red)}
+  .vchip.sel{border-color:var(--accent);background:#eff6ff;color:var(--accent2)}
+  .modal .rec .rec-photo{max-height:260px}
 </style>
 </head>
 <body>
 
+<!-- ===== מסך התחברות ===== -->
+<div id="loginOverlay">
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <div class="logo">🚗</div>
+    <h2>מערכת אסף</h2>
+    <p>התחברו כדי להמשיך</p>
+    <div class="login-info" id="loginInfo"></div>
+    <div class="field">
+      <label for="loginEmail">מייל</label>
+      <input type="email" id="loginEmail" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label for="loginPass">סיסמא</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">כניסה</button>
+    <div class="login-err" id="loginErr"></div>
+  </form>
+</div>
+
+<div class="app-shell">
   <div class="brand">
     <div class="logo">🚗</div>
     <div>
       <h1>מערכת אסף</h1>
-      <div class="sub">בקרת רכבים · הזנה ובדיקה</div>
+      <div class="sub">בקרת רכבים וחשודים · הזנה ובדיקה</div>
     </div>
   </div>
+
+  <div class="appbar" id="appbar"></div>
 
   <div class="crumbs" id="crumbs"></div>
 
   <div class="stage" id="stage"></div>
+</div>
 
   <div class="toast" id="toast"></div>
   <div class="fb-tag" id="fbTag"></div>
+  <div id="modalRoot"></div>
+  <input type="file" id="rowPhotoInput" accept="image/*" style="display:none" onchange="onRowPhoto(this)">
 
 <script>
 /* =========================================================
-   מערכת אסף — קובץ יחיד, Firebase חינמי (נתיב /asaf)
+   מערכת אסף — קובץ יחיד, Firebase (נתיבים /asaf, /asafSuspects ...)
    ========================================================= */
 var FIREBASE_URL = 'https://security-event-check-default-rtdb.europe-west1.firebasedatabase.app';
+var FIREBASE_API_KEY = 'AIzaSyC2xGXHhzYNMQ3jupdfQqKAqgSs570Waec';
+var IDLE_MINUTES = 20;            // ניתוק אוטומטי אחרי זמן ללא פעילות
+var EXCELJS_URL = 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';
+var EXCELJS_SRI = 'sha384-Pqp51FUN2/qzfxZxBCtF0stpc9ONI6MYZpVqmo8m20SoaQCzf+arZvACkLkirlPz';
+var MAX_BULK_ROWS = 1000;
 
 var LOCATIONS = [
   { key:'mauro',   name:'מאורו',  ico:'🏛️' },
@@ -235,22 +396,172 @@ var COLORS = {
 
 // state
 var state = { loc:null, action:null };
+var MODULE = 'vehicles';
+var ROLE = null;   // 'admin' | 'editor' | 'viewer'
 
 /* ---------- utilities ---------- */
 function el(id){ return document.getElementById(id); }
 function locName(k){ var l=LOCATIONS.filter(function(x){return x.key===k;})[0]; return l?l.name:''; }
 function locIco(k){ var l=LOCATIONS.filter(function(x){return x.key===k;})[0]; return l?l.ico:''; }
-function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function sanitizeKey(v){ return String(v||'').trim().toUpperCase().replace(/[.#$\[\]\/]/g,'_').replace(/\s+/g,'_'); }
 function useLocal(){ return !FIREBASE_URL || FIREBASE_URL.indexOf('YOUR-PROJECT')>=0; }
+function todayISO(){ var d=new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function pad2(n){ return (n<10?'0':'')+n; }
+function fmtDate(iso){ if(!iso) return ''; var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function fmtDT(iso){ if(!iso) return ''; var d=new Date(iso); return isNaN(d)? iso : d.toLocaleString('he-IL',{dateStyle:'short',timeStyle:'short'}); }
+function safeImg(src){ src=String(src||''); return (src.indexOf('data:image/')===0 || /^https:\/\//i.test(src)) ? src : ''; }
 
 function toast(msg, type){
   var t=el('toast'); t.textContent=msg; t.className='toast show '+(type||'');
-  clearTimeout(window._tt); window._tt=setTimeout(function(){ t.className='toast'; }, 2800);
+  clearTimeout(window._tt); window._tt=setTimeout(function(){ t.className='toast'; }, 3200);
 }
 
-/* ---------- Firebase / local storage ---------- */
-function recPath(loc, key){ return FIREBASE_URL+'/asaf/'+encodeURIComponent(loc)+'/'+encodeURIComponent(key)+'.json'; }
+/* =========================================================
+   התחברות — Firebase Authentication (REST)
+   ========================================================= */
+var FBAuth = (function(){
+  var idToken=null, expiresAt=0, refreshing=null, user={ uid:null, email:null };
+  function ss(){ try{ return window.sessionStorage; }catch(e){ return null; } }
+  function save(d){
+    idToken = d.idToken || d.id_token;
+    expiresAt = Date.now() + (parseInt(d.expiresIn || d.expires_in, 10) - 120) * 1000;
+    user.uid = d.localId || d.user_id || user.uid;
+    if (d.email) user.email = d.email;
+    var s=ss(); if(s){ s.setItem('asafRT', d.refreshToken || d.refresh_token); if(user.email) s.setItem('asafEmail', user.email); }
+  }
+  function signIn(email, password){
+    return fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + FIREBASE_API_KEY, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email:email, password:password, returnSecureToken:true })
+    }).then(function(r){ return r.json().then(function(d){ if(!r.ok) throw new Error((d.error && d.error.message) || 'LOGIN_FAILED'); save(d); }); });
+  }
+  function refresh(){
+    var s=ss(), rt = s ? s.getItem('asafRT') : null;
+    if (!rt) return Promise.reject(new Error('NO_SESSION'));
+    if (s && !user.email) user.email = s.getItem('asafEmail');
+    if (!refreshing) {
+      refreshing = fetch('https://securetoken.googleapis.com/v1/token?key=' + FIREBASE_API_KEY, {
+        method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:'grant_type=refresh_token&refresh_token=' + encodeURIComponent(rt)
+      }).then(function(r){ return r.json().then(function(d){ if(!r.ok) throw new Error('SESSION_EXPIRED'); save(d); }); })
+        .finally(function(){ refreshing=null; });
+    }
+    return refreshing;
+  }
+  function getToken(){
+    if (idToken && Date.now() < expiresAt) return Promise.resolve(idToken);
+    return refresh().then(function(){ return idToken; });
+  }
+  function clear(){ idToken=null; expiresAt=0; var s=ss(); if(s){ s.removeItem('asafRT'); s.removeItem('asafEmail'); } }
+  function logout(msg){
+    clear(); var s=ss(); if(s && msg) s.setItem('asafLogoutMsg', msg);
+    location.reload();
+  }
+  function hasSession(){ var s=ss(); return !!(s && s.getItem('asafRT')); }
+  return { signIn:signIn, refresh:refresh, getToken:getToken, clear:clear, logout:logout, hasSession:hasSession, user:function(){ return user; } };
+})();
+
+/* כל פנייה ל-Firebase עוברת כאן, עם טוקן הזדהות */
+function fbFetch(path, opts){
+  return FBAuth.getToken().then(function(t){
+    return fetch(FIREBASE_URL + path + (path.indexOf('?')>=0?'&':'?') + 'auth=' + encodeURIComponent(t), opts);
+  });
+}
+function fbJSON(path, opts){
+  return fbFetch(path, opts).then(function(r){
+    if (r.status===401 || r.status===403) throw new Error('אין הרשאה לפעולה זו');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  });
+}
+
+function loadRole(){
+  var uid = encodeURIComponent(FBAuth.user().uid || '');
+  function get(p){ return fbFetch(p).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); }
+  return get('/admin/'+uid+'.json').then(function(a){
+    if (a === true) return 'admin';
+    return get('/asafUsers/'+uid+'.json').then(function(v){
+      if (v === 'editor') return 'editor';
+      if (v) return 'viewer';
+      return null;
+    });
+  });
+}
+function canEdit(){ return ROLE==='admin' || ROLE==='editor'; }
+function isAdmin(){ return ROLE==='admin'; }
+function roleLabel(){ return ROLE==='admin' ? 'מנהל' : (ROLE==='editor' ? 'עורך' : 'צופה'); }
+
+(function setupLogin(){
+  var MSG = {
+    INVALID_LOGIN_CREDENTIALS:'מייל או סיסמא שגויים', INVALID_PASSWORD:'מייל או סיסמא שגויים',
+    EMAIL_NOT_FOUND:'מייל או סיסמא שגויים', INVALID_EMAIL:'כתובת מייל לא תקינה',
+    USER_DISABLED:'המשתמש חסום', TOO_MANY_ATTEMPTS_TRY_LATER:'יותר מדי ניסיונות. נסו שוב בעוד כמה דקות'
+  };
+  try { var m = sessionStorage.getItem('asafLogoutMsg'); if (m) { el('loginInfo').textContent = m; el('loginInfo').style.display='block'; sessionStorage.removeItem('asafLogoutMsg'); } } catch(e){}
+  el('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var btn=el('loginBtn'), err=el('loginErr'), pw=el('loginPass');
+    btn.disabled=true; btn.innerHTML='<span class="spinner"></span> מתחבר...'; err.textContent='';
+    FBAuth.signIn(el('loginEmail').value.trim(), pw.value).then(function(){
+      pw.value=''; return afterAuth();
+    }).catch(function(ex){
+      var code = String(ex.message||'').split(' ')[0].split(':')[0];
+      err.textContent = MSG[code] || ('שגיאת התחברות (' + code + ')');
+      pw.value=''; pw.focus();
+    }).finally(function(){ btn.disabled=false; btn.innerHTML='כניסה'; });
+  });
+})();
+
+function afterAuth(){
+  return loadRole().then(function(r){
+    if (!r) {
+      FBAuth.clear();
+      el('loginErr').textContent = 'למשתמש זה אין הרשאה למערכת אסף. פנו למנהל המערכת.';
+      document.documentElement.classList.add('locked');
+      return;
+    }
+    ROLE = r;
+    document.documentElement.classList.remove('locked');
+    startIdleTimer();
+    goVehicles();
+  });
+}
+
+/* ניתוק אוטומטי אחרי חוסר פעילות */
+function startIdleTimer(){
+  if (window._idleStarted) return; window._idleStarted = true;
+  var last = Date.now();
+  ['click','keydown','touchstart','scroll','mousemove'].forEach(function(ev){
+    window.addEventListener(ev, function(){ last = Date.now(); }, { passive:true });
+  });
+  setInterval(function(){
+    if (Date.now() - last > IDLE_MINUTES*60000) FBAuth.logout('נותקתם אוטומטית לאחר ' + IDLE_MINUTES + ' דקות ללא פעילות.');
+  }, 30000);
+}
+
+/* ---------- לשוניות עליונות ---------- */
+function renderAppbar(){
+  var u = FBAuth.user();
+  el('appbar').innerHTML =
+    '<button class="tab '+(MODULE==='vehicles'?'active':'')+'" onclick="goVehicles()">🚗 רכבים</button>'+
+    '<button class="tab '+(MODULE==='suspects'?'active':'')+'" onclick="goSuspects()">🕵️ חשודים</button>'+
+    '<div class="user-chip">👤 <b>'+esc(u.email||'')+'</b> · '+roleLabel()+
+      ' <button onclick="FBAuth.logout()">יציאה</button></div>';
+}
+function setWide(on){ el('stage').classList.toggle('wide', !!on); }
+function goVehicles(){ MODULE='vehicles'; setWide(false); renderAppbar(); screenLocation(); }
+function goSuspects(){ MODULE='suspects'; renderAppbar(); screenSuspectsHome(); }
+function sCrumbs(parts){
+  el('crumbs').innerHTML = parts.map(function(p,i){
+    return '<span class="crumb '+(i===parts.length-1?'active':'')+'">'+p+'</span>';
+  }).join('');
+}
+
+/* =========================================================
+   רכבים — Firebase / local storage
+   ========================================================= */
+function recPath(loc, key){ return '/asaf/'+encodeURIComponent(loc)+'/'+encodeURIComponent(key)+'.json'; }
 
 function saveRecord(loc, key, data){
   if(useLocal()){
@@ -259,9 +570,9 @@ function saveRecord(loc, key, data){
     localStorage.setItem('asafRecords', JSON.stringify(all));
     return Promise.resolve();
   }
-  return fetch(recPath(loc,key), {
+  return fbJSON(recPath(loc,key), {
     method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)
-  }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); });
+  });
 }
 
 function getRecord(loc, key){
@@ -269,9 +580,7 @@ function getRecord(loc, key){
     var all=JSON.parse(localStorage.getItem('asafRecords')||'{}');
     return Promise.resolve((all[loc]&&all[loc][key])||null);
   }
-  return fetch(recPath(loc,key)).then(function(r){
-    if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
-  });
+  return fbJSON(recPath(loc,key));
 }
 
 // חיפוש רכב בכל האתרים — מחזיר מערך של רשומות תואמות (לכל רשומה יש location)
@@ -283,7 +592,7 @@ function getRecordAllLocations(key){
     return Promise.resolve(out);
   }
   return Promise.all(LOCATIONS.map(function(l){
-    return fetch(recPath(l.key,key)).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; });
+    return fbJSON(recPath(l.key,key)).catch(function(){ return null; });
   })).then(function(results){ return results.filter(function(x){ return x; }); });
 }
 
@@ -302,7 +611,7 @@ function renderCrumbs(){
    מסך 1 — בחירת אתר
    ========================================================= */
 function screenLocation(){
-  state.loc=null; state.action=null; renderCrumbs();
+  VLIST.fromList=false; state.loc=null; state.action=null; renderCrumbs();
   var cards=LOCATIONS.map(function(l){
     return '<div class="choice" onclick="chooseLocation(\''+l.key+'\')">'+
       '<span class="ico">'+l.ico+'</span>'+
@@ -314,6 +623,7 @@ function screenLocation(){
       '<h2>בחירת אתר</h2>'+
       '<p class="lead">בחרו את האתר שברצונכם לעבוד עליו</p>'+
       '<div class="grid three">'+cards+'</div>'+
+      '<button class="btn btn-ghost btn-block" style="margin-top:18px" onclick="screenVehicleList()">🗂️ כל מאגר הרכבים</button>'+
     '</div>';
 }
 function chooseLocation(k){ state.loc=k; state.action=null; screenAction(); }
@@ -322,6 +632,7 @@ function chooseLocation(k){ state.loc=k; state.action=null; screenAction(); }
    מסך 2 — בחירת פעולה
    ========================================================= */
 function screenAction(){
+  VLIST.fromList=false; setWide(false);
   renderCrumbs();
   el('stage').innerHTML=
     '<div class="panel">'+
@@ -336,6 +647,7 @@ function screenAction(){
           '<span class="ico">🔍</span><div class="t">בדיקה</div>'+
           '<div class="d">חיפוש לפי מספר רכב</div></div>'+
       '</div>'+
+      '<button class="btn btn-ghost btn-block" style="margin-top:18px" onclick="screenVehicleList(state.loc)">🗂️ כל הרכבים ב'+locName(state.loc)+'</button>'+
     '</div>';
 }
 function chooseAction(a){
@@ -361,7 +673,7 @@ function screenEntry(editData){
 
   el('stage').innerHTML=
     '<div class="panel">'+
-      '<button class="back-link" onclick="'+(isEdit?'screenCheck()':'screenAction()')+'">→ '+(isEdit?'חזרה לבדיקה':'חזרה')+'</button>'+
+      '<button class="back-link" onclick="'+(isEdit?(VLIST.fromList?'screenVehicleList(VLIST.loc)':'screenCheck()'):'screenAction()')+'">→ '+(isEdit?(VLIST.fromList?'חזרה למאגר':'חזרה לבדיקה'):'חזרה')+'</button>'+
       '<h2>'+(isEdit?'עריכת רכב':'הזנת רכב')+' · '+locName(entryLoc)+'</h2>'+
       '<p class="lead">'+(isEdit?'עדכנו את פרטי הרכב ושמרו':'מלאו את פרטי הרכב. שדות עם * הם חובה')+'</p>'+
 
@@ -437,20 +749,21 @@ function onPhoto(input){
   var file=input.files&&input.files[0]; if(!file) return;
   compressImage(file, function(b64){ photoData=b64; showPreview(b64); });
 }
-function compressImage(file, cb){
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var img=new Image();
-    img.onload=function(){
-      var maxW=1100, scale=Math.min(1, maxW/img.width);
-      var cw=Math.round(img.width*scale), ch=Math.round(img.height*scale);
-      var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
-      canvas.getContext('2d').drawImage(img,0,0,cw,ch);
-      cb(canvas.toDataURL('image/jpeg', 0.6));
-    };
-    img.src=e.target.result;
+/* דחיסת תמונה (גם מסירה מטא-דאטה כמו מיקום GPS, כי התמונה מצוירת מחדש) */
+function compressImage(file, cb, maxW, onErr){
+  maxW = maxW || 1100;
+  var url = URL.createObjectURL(file);
+  var img=new Image();
+  img.onload=function(){
+    var scale=Math.min(1, maxW/img.width);
+    var cw=Math.round(img.width*scale), ch=Math.round(img.height*scale);
+    var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
+    canvas.getContext('2d').drawImage(img,0,0,cw,ch);
+    URL.revokeObjectURL(url);
+    cb(canvas.toDataURL('image/jpeg', 0.6));
   };
-  reader.readAsDataURL(file);
+  img.onerror=function(){ URL.revokeObjectURL(url); if(onErr) onErr(); else toast('לא ניתן לקרוא את קובץ התמונה','err'); };
+  img.src=url;
 }
 function showPreview(b64){
   el('previewImg').src=b64;
@@ -539,6 +852,7 @@ function jsonAttr(obj){
    מסך בדיקה — חיפוש לפי מספר רכב
    ========================================================= */
 function screenCheck(){
+  VLIST.fromList=false;
   renderCrumbs();
   el('stage').innerHTML=
     '<div class="panel">'+
@@ -564,12 +878,13 @@ function doCheck(){
   getRecordAllLocations(key).then(function(recs){
     btn.disabled=false; btn.innerHTML=orig;
     window._foundRecs=recs;
+    window._newNum=num;
     if(!recs.length){
       el('checkResult').innerHTML=
         '<div class="empty-note">'+
           '<span class="ico">🚫</span>'+
           'לא נמצא רכב עם מספר <b>'+esc(num)+'</b> באף אחד מהאתרים.'+
-          '<div style="margin-top:16px"><button class="btn btn-green" onclick="startNewFromCheck(\''+esc(num).replace(/'/g,"")+'\')">➕ הזנת רכב זה</button></div>'+
+          '<div style="margin-top:16px"><button class="btn btn-green" onclick="startNewFromCheck(window._newNum)">➕ הזנת רכב זה</button></div>'+
         '</div>';
       return;
     }
@@ -597,9 +912,10 @@ function startNewFromCheck(num){
 
 /* כרטיס תצוגת רשומה */
 function recCardHTML(rec, withPhoto){
-  var c=rec.color||'green';
-  var pill='<span class="pill '+c+'">'+(COLORS[c]?COLORS[c].label:'')+' · '+(COLORS[c]?COLORS[c].he:'')+'</span>';
-  var photo = rec.photo ? '<img class="rec-photo" src="'+rec.photo+'" alt="רכב">' : '';
+  var c=COLORS[rec.color] ? rec.color : 'green';
+  var pill='<span class="pill '+c+'">'+COLORS[c].label+' · '+COLORS[c].he+'</span>';
+  var src=safeImg(rec.photo);
+  var photo = src ? '<img class="rec-photo" src="'+esc(src)+'" alt="רכב">' : '';
   var rows='';
   function row(k,v){ if(!v) return ''; return '<div class="row"><span class="k">'+k+'</span><span class="v">'+esc(v)+'</span></div>'; }
   rows+=row('מספר רכב', rec.vehicleNumber);
@@ -615,6 +931,932 @@ function recCardHTML(rec, withPhoto){
 }
 
 /* =========================================================
+   כל מאגר הרכבים
+   ========================================================= */
+var VLIST = { all:null, loc:'', color:'', q:'', fromList:false };
+
+function loadAllVehicles(){
+  if (useLocal()) {
+    var all = JSON.parse(localStorage.getItem('asafRecords')||'{}');
+    return Promise.resolve(all);
+  }
+  return Promise.all(LOCATIONS.map(function(l){
+    return fbJSON('/asaf/'+encodeURIComponent(l.key)+'.json').then(function(d){ return [l.key, d]; });
+  })).then(function(parts){ var o={}; parts.forEach(function(p){ o[p[0]] = p[1]; }); return o; });
+}
+function screenVehicleList(loc){
+  VLIST.loc = loc || ''; VLIST.fromList = false;
+  setWide(true);
+  sCrumbs(['🚗 רכבים', '🗂️ '+(VLIST.loc ? 'כל הרכבים ב'+locName(VLIST.loc) : 'כל מאגר הרכבים')]);
+  var siteOpts = '<option value="">כל האתרים</option>' + LOCATIONS.map(function(l){
+    return '<option value="'+l.key+'"'+(VLIST.loc===l.key?' selected':'')+'>'+l.ico+' '+l.name+'</option>';
+  }).join('');
+  el('stage').innerHTML =
+    '<div class="panel">'+
+      '<button class="back-link" onclick="'+(loc?'chooseLocation(\''+loc+'\')':'screenLocation()')+'">→ חזרה</button>'+
+      '<h2>🗂️ מאגר הרכבים</h2>'+
+      '<p class="lead">כל הרכבים השמורים. לחצו על שורה לצפייה בפרטים ולעריכה.</p>'+
+      '<div class="vfilters">'+
+        '<input type="search" id="vSearch" placeholder="חיפוש: מספר רכב, תיאור, בעלים, מגיש..." value="'+esc(VLIST.q)+'" oninput="VLIST.q=this.value;renderVehicleList()">'+
+        '<select id="vSite" onchange="VLIST.loc=this.value;renderVehicleList()">'+siteOpts+'</select>'+
+        '<div class="vchips">'+
+          ['','green','orange','red'].map(function(c){
+            return '<button class="vchip'+(VLIST.color===c?' sel':'')+'" data-c="'+c+'" onclick="VLIST.color=\''+c+'\';renderVehicleList()">'+
+              (c ? '<span class="col-dot" style="width:12px;height:12px"></span>'+COLORS[c].label : 'כל הסטטוסים')+'</button>';
+          }).join('')+
+        '</div>'+
+      '</div>'+
+      '<div id="vList"><span class="spinner" style="border-color:#cbd5e1;border-top-color:var(--accent)"></span> טוען את המאגר...</div>'+
+    '</div>';
+  loadAllVehicles().then(function(all){
+    var arr = [];
+    Object.keys(all||{}).forEach(function(lk){
+      var recs = all[lk] || {};
+      Object.keys(recs).forEach(function(k){ var r = recs[k]; if (r && typeof r==='object') { if (!r.location) r.location = lk; arr.push(r); } });
+    });
+    arr.sort(function(a,b){ return String(b.updatedAt||b.createdAt||'').localeCompare(String(a.updatedAt||a.createdAt||'')); });
+    VLIST.all = arr; renderVehicleList();
+  }).catch(function(err){ el('vList').innerHTML = '<div class="notice err">לא ניתן לטעון את המאגר: '+esc(err.message)+'</div>'; });
+}
+function renderVehicleList(){
+  if (!VLIST.all) return;
+  var chips = document.querySelectorAll('.vchip');
+  for (var i=0;i<chips.length;i++) chips[i].classList.toggle('sel', chips[i].getAttribute('data-c')===VLIST.color);
+  var q = VLIST.q.trim().toLowerCase(), qk = sanitizeKey(VLIST.q);
+  var rows = VLIST.all.filter(function(r){
+    if (VLIST.loc && r.location !== VLIST.loc) return false;
+    if (VLIST.color && r.color !== VLIST.color) return false;
+    if (!q) return true;
+    if (qk && sanitizeKey(r.vehicleNumber).replace(/[-_]/g,'').indexOf(qk.replace(/[-_]/g,'')) >= 0) return true;
+    return [r.vehicleNumber, r.description, r.samach, r.owner, r.reporter].join(' ').toLowerCase().indexOf(q) >= 0;
+  });
+  var cnt = { green:0, orange:0, red:0 };
+  rows.forEach(function(r){ if (cnt[r.color] !== undefined) cnt[r.color]++; });
+  if (!VLIST.all.length) { el('vList').innerHTML = '<div class="empty-note"><span class="ico">🚗</span>המאגר ריק — עדיין לא הוזנו רכבים</div>'; return; }
+  var shown = rows.slice(0, 300);
+  window._vRows = shown;
+  var h = '<div class="hint" style="margin-bottom:8px"><b>'+rows.length+'</b> רכבים'+
+      ' · <span style="color:var(--green)">●</span> '+cnt.green+' <span style="color:var(--orange)">●</span> '+cnt.orange+' <span style="color:var(--red)">●</span> '+cnt.red+
+      (rows.length>300?' · מוצגים 300 הראשונים — צמצמו בחיפוש':'')+'</div>';
+  if (!rows.length) { el('vList').innerHTML = h + '<div class="empty-note"><span class="ico">🔍</span>לא נמצאו רכבים שמתאימים לסינון</div>'; return; }
+  h += '<div class="tbl-wrap"><table class="gt"><thead><tr><th>תמונה</th><th>מספר רכב</th><th>אתר</th><th>סטטוס</th><th>תיאור</th><th>תיאור בעלים</th><th>מגיש</th><th>עודכן</th></tr></thead><tbody>';
+  shown.forEach(function(r, i){
+    var c = COLORS[r.color] ? r.color : '';
+    var src = safeImg(r.photo);
+    h += '<tr style="cursor:pointer" onclick="openVehicle('+i+')">'+
+      '<td>'+(src ? '<img class="thumb" loading="lazy" src="'+esc(src)+'" alt="">' : '<span class="muted">—</span>')+'</td>'+
+      '<td style="font-weight:900;letter-spacing:.5px;white-space:nowrap">'+esc(r.vehicleNumber)+'</td>'+
+      '<td style="white-space:nowrap">'+locIco(r.location)+' '+esc(locName(r.location))+'</td>'+
+      '<td>'+(c ? '<span class="pill '+c+'" style="font-size:11px;padding:4px 10px">'+COLORS[c].label+'</span>' : '')+'</td>'+
+      '<td style="max-width:220px">'+esc(r.description)+'</td>'+
+      '<td style="max-width:200px">'+esc(r.owner)+'</td>'+
+      '<td>'+esc(r.reporter)+'</td>'+
+      '<td style="white-space:nowrap">'+esc(fmtDT(r.updatedAt||r.createdAt))+'</td></tr>';
+  });
+  el('vList').innerHTML = h + '</tbody></table></div>';
+}
+function openVehicle(i){
+  var r = window._vRows && window._vRows[i]; if (!r) return;
+  openModal(recCardHTML(r, true)+
+    '<div class="actions" style="margin-top:14px"><button class="btn btn-ghost btn-block" onclick="closeModal()">סגירה</button>'+
+    '<button class="btn btn-primary btn-block" onclick="editFromList('+i+')">✏️ עריכה / הוספת מידע</button></div>');
+}
+function editFromList(i){
+  var r = window._vRows && window._vRows[i]; if (!r) return;
+  closeModal(); setWide(false);
+  state.loc = r.location; state.action = 'check';
+  screenEntry(r); VLIST.fromList = true;
+  // מרענן את כפתור החזרה כך שיחזור למאגר
+  var b = document.querySelector('#stage .back-link');
+  if (b) { b.textContent = '→ חזרה למאגר'; b.onclick = function(){ screenVehicleList(VLIST.loc); }; }
+}
+
+/* =========================================================
+   =========================================================
+   אזור חשודים
+   =========================================================
+   ========================================================= */
+var SUS = { list:null, loadedAt:0 };
+var photoCache = {};
+
+function newId(prefix){
+  var a = new Uint8Array(6); crypto.getRandomValues(a);
+  var r = Array.prototype.map.call(a, function(b){ return (b % 36).toString(36); }).join('');
+  return (prefix||'') + Date.now().toString(36) + r;
+}
+
+function loadSuspects(force){
+  if (SUS.list && !force && Date.now()-SUS.loadedAt < 60000) return Promise.resolve(SUS.list);
+  return fbJSON('/asafSuspects.json').then(function(d){
+    var arr=[];
+    if (d && typeof d==='object') Object.keys(d).forEach(function(k){ var x=d[k]; if (x && typeof x==='object') { x._id=k; arr.push(x); } });
+    arr.sort(function(a,b){ return String(b.createdAt||'').localeCompare(String(a.createdAt||'')); });
+    SUS.list=arr; SUS.loadedAt=Date.now(); return arr;
+  });
+}
+function loadSuspectPhoto(id){
+  if (photoCache[id] !== undefined) return Promise.resolve(photoCache[id]);
+  return fbJSON('/asafSuspectPhotos/'+encodeURIComponent(id)+'.json').then(function(p){
+    photoCache[id] = (typeof p==='string' && p.indexOf('data:image/')===0) ? p : null; return photoCache[id];
+  }).catch(function(){ return null; });
+}
+/* ממלא תמונות לכל <img data-pid> שמוצג במסך */
+function hydratePhotos(root){
+  var imgs = (root||document).querySelectorAll('img[data-pid]');
+  Array.prototype.forEach.call(imgs, function(img){
+    var id = img.getAttribute('data-pid'); img.removeAttribute('data-pid');
+    loadSuspectPhoto(id).then(function(src){ if (src) img.src = src; else img.replaceWith(noImg()); });
+  });
+}
+function noImg(){ var d=document.createElement('div'); d.className='noimg'; d.textContent='👤'; return d; }
+
+function suspectPhotoHTML(s, cls){
+  if (s.hasPhoto) return '<img class="'+(cls||'')+'" data-pid="'+esc(s._id)+'" alt="תמונה" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=">';
+  var u = safeImg(s.photoUrl);
+  if (u && /^https:/i.test(u)) return '<img class="'+(cls||'')+'" src="'+esc(u)+'" referrerpolicy="no-referrer" alt="תמונה">';
+  return '<div class="noimg">👤</div>';
+}
+
+function logAudit(action, extra){
+  var u = FBAuth.user(), e = {
+    action:action, at:new Date().toISOString(), ts:{'.sv':'timestamp'}, uid:u.uid, email:u.email||''
+  };
+  if (extra) Object.keys(extra).forEach(function(k){ e[k]=extra[k]; });
+  return fbJSON('/asafAudit/'+newId('A')+'.json', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(e) })
+    .catch(function(){ /* יומן — לא חוסם */ });
+}
+
+/* שמירת רשומות חדשות בלבד — אף פעם לא דורס או מוחק רשומה קיימת */
+function saveSuspects(items, source){
+  var u = FBAuth.user(), now = new Date().toISOString();
+  var batchId = items.length > 1 ? newId('B') : '';
+  var recs = items.map(function(it){
+    var id = newId('S');
+    var rec = {
+      firstName: it.firstName||'', lastName: it.lastName||'', reason: it.reason||'', entryDate: it.entryDate||'',
+      hasPhoto: !!it.photo, createdAt: now, createdBy: u.uid, createdByEmail: u.email||'', source: source
+    };
+    if (it.photoUrl) rec.photoUrl = it.photoUrl;
+    if (batchId) rec.batchId = batchId;
+    return { id:id, rec:rec, photo: it.photo||null };
+  });
+  var CHUNK = 40, chunks = [];
+  for (var i=0; i<recs.length; i+=CHUNK) chunks.push(recs.slice(i, i+CHUNK));
+  var saved = 0;
+  return chunks.reduce(function(p, chunk){
+    return p.then(function(){
+      var upd = {};
+      chunk.forEach(function(x){
+        upd['asafSuspects/'+x.id] = x.rec;
+        if (x.photo) upd['asafSuspectPhotos/'+x.id] = x.photo;
+      });
+      return fbJSON('/.json', { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(upd) })
+        .then(function(){ saved += chunk.length; chunk.forEach(function(x){ if (x.photo) photoCache[x.id]=x.photo; }); });
+    });
+  }, Promise.resolve()).then(function(){
+    return logAudit(source==='bulk' ? 'bulk_create' : 'create', { count: saved, batchId: batchId });
+  }).then(function(){
+    SUS.list = null; return saved;
+  }).catch(function(err){
+    SUS.list = null;
+    if (saved) logAudit(source==='bulk' ? 'bulk_create' : 'create', { count: saved, batchId: batchId, partial: true });
+    err.saved = saved; throw err;
+  });
+}
+
+/* ---------- התאמת שמות ---------- */
+var FINALS = { 'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ' };
+function normName(s){
+  s = String(s==null?'':s);
+  if (s.normalize) s = s.normalize('NFKD');
+  s = s.replace(/[̀-ͯ]/g,'').replace(/[֑-ׇ]/g,'').toLowerCase();
+  s = s.replace(/[ךםןףץ]/g, function(c){ return FINALS[c]; });
+  s = s.replace(/["'`׳״\-_.,()\/\\]/g,' ').replace(/\s+/g,' ').trim();
+  return s;
+}
+function lev(a,b){
+  var m=a.length, n=b.length; if(!m) return n; if(!n) return m;
+  var prev=[], cur=[], i, j;
+  for(j=0;j<=n;j++) prev[j]=j;
+  for(i=1;i<=m;i++){ cur=[i]; for(j=1;j<=n;j++){ cur[j]=Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1)); } prev=cur; }
+  return prev[n];
+}
+function sim(a,b){ if(!a||!b) return 0; if(a===b) return 1; return 1 - lev(a,b)/Math.max(a.length,b.length); }
+
+/* משווה שורה אחת לרשומה אחת במאגר. מחזיר null או {level, fields, note} */
+function compareOne(f, l, s){
+  var sf = normName(s.firstName), sl = normName(s.lastName);
+  if (!sf && !sl) return null;
+  var fe = !!(f && sf && f===sf), le = !!(l && sl && l===sl);
+  function R(note, ff, lf){ return { level:'review', fields:[['שם פרטי',ff],['שם משפחה',lf]], note:note }; }
+  if (f && l && fe && le) return { level:'match', fields:[['שם פרטי','y'],['שם משפחה','y']], note:'' };
+  if (f && l && sf && sl) {
+    if (f===sl && l===sf) return R('השם ושם המשפחה מופיעים בסדר הפוך', 'p', 'p');
+    if ((f+l).replace(/ /g,'') === (sf+sl).replace(/ /g,'')) return R('השם המלא זהה, אך מחולק אחרת בין השדות', 'p', 'p');
+    var fs = sim(f,sf), ls = sim(l,sl);
+    if ((fe || fs>=0.75) && (le || ls>=0.75)) return R('שם דומה מאוד — ייתכן איות שונה', fe?'y':'p', le?'y':'p');
+    return null;
+  }
+  if (f && !l && fe) return R('הוזן שם פרטי בלבד — התאמה חלקית', 'y', 'n');
+  if (l && !f && le) return R('הוזן שם משפחה בלבד — התאמה חלקית', 'n', 'y');
+  if (f && l && !sf && le) return R('ברשומה במאגר אין שם פרטי; שם המשפחה זהה', 'n', 'y');
+  if (f && l && !sl && fe) return R('ברשומה במאגר אין שם משפחה; השם הפרטי זהה', 'y', 'n');
+  return null;
+}
+function findMatches(first, last, list){
+  var f = normName(first), l = normName(last);
+  if (!f && !l) return { status:'skip', cands:[] };
+  var cands = [];
+  list.forEach(function(s){ var r = compareOne(f, l, s); if (r) { r.s = s; cands.push(r); } });
+  cands.sort(function(a,b){ return (a.level==='match'?0:1) - (b.level==='match'?0:1); });
+  var status = !cands.length ? 'none' : (cands[0].level==='match' ? 'match' : 'review');
+  return { status:status, cands:cands };
+}
+var ST_LABEL = { match:'🔴 נמצאה התאמה', review:'🟠 נדרשת בדיקה ידנית', none:'🟢 לא נמצאה התאמה', skip:'⚪ לא נבדק — אין שם' };
+
+function candHTML(c){
+  var s = c.s, F = { y:'<span class="y">✓ זהה</span>', p:'<span class="p">≈ דומה</span>', n:'<span class="n">— חסר</span>' };
+  var fields = c.fields.map(function(x){ return x[0]+': '+F[x[1]]; }).join(' · ');
+  return '<div class="cand '+(c.level==='match'?'lvl-match':'')+'">'+ suspectPhotoHTML(s) +
+    '<div><div class="cn">'+esc((s.firstName||'')+' '+(s.lastName||'')).trim()+'</div>'+
+    (s.reason ? '<div class="cm"><b>סיבה:</b> '+esc(s.reason)+'</div>' : '')+
+    '<div class="cm">'+(s.entryDate?'תאריך הזנה: '+esc(fmtDate(s.entryDate))+' · ':'')+'הוזן ע״י '+esc(s.createdByEmail||'—')+' · '+esc(fmtDT(s.createdAt))+'</div>'+
+    '<div class="mf">'+fields+'</div>'+
+    (c.note ? '<div class="cand-note">⚠️ '+esc(c.note)+'</div>' : '')+
+    '</div></div>';
+}
+
+/* ---------- מסכים ---------- */
+function screenSuspectsHome(){
+  setWide(false);
+  sCrumbs(['🕵️ חשודים']);
+  var lockNote = canEdit() ? '' : '<div class="notice info">ההרשאה שלך היא <b>צפייה ובדיקה</b>. הוספת חשודים זמינה רק לעורכים ולמנהלים.</div>';
+  function card(fn, ico, t, d, locked){
+    return '<div class="choice act '+(locked?'locked':'')+'" onclick="'+(locked?'toast(\'נדרשת הרשאת עורך\',\'err\')':fn)+'">'+
+      '<span class="ico">'+ico+'</span><div class="t">'+t+'</div><div class="d">'+d+'</div></div>';
+  }
+  el('stage').innerHTML =
+    '<div class="panel">'+
+      '<h2>🕵️ ניהול ובדיקת חשודים</h2>'+
+      '<p class="lead">הוספה ידנית, הזנה מרוכזת ובדיקת רשימות מול המאגר</p>'+ lockNote +
+      '<div class="grid two">'+
+        card('screenSuspectAdd()', '➕', 'הוספה ידנית', 'חשוד אחד, עם תמונה', !canEdit())+
+        card('screenBulk()', '📋', 'הזנה מרוכזת ובדיקה', 'טבלה, Excel או הדבקה')+
+        card('screenSuspectList()', '🗂️', 'רשימת חשודים', 'חיפוש וצפייה במאגר')+
+        (isAdmin() ? card('screenAudit()', '📜', 'יומן פעולות', 'מי הוסיף, בדק וייצא — ומתי') : '')+
+      '</div>'+
+      '<div class="sec-note">🔒 המידע באזור זה רגיש. הגישה מוגבלת למשתמשים מורשים, כל פעולה נרשמת ביומן, והמערכת מתנתקת אוטומטית אחרי '+IDLE_MINUTES+' דקות ללא פעילות.</div>'+
+    '</div>';
+}
+
+/* ===== הוספה ידנית ===== */
+var sPhoto = null;
+function screenSuspectAdd(prefill){
+  if (!canEdit()) { toast('נדרשת הרשאת עורך','err'); return; }
+  setWide(false);
+  sCrumbs(['🕵️ חשודים','➕ הוספה ידנית']);
+  prefill = prefill || {};
+  sPhoto = prefill.photo || null;
+  el('stage').innerHTML =
+    '<div class="panel">'+
+      '<button class="back-link" onclick="screenSuspectsHome()">→ חזרה</button>'+
+      '<h2>➕ הוספת חשוד</h2>'+
+      '<p class="lead">אף שדה אינו חובה — אפשר לשמור גם עם מידע חלקי. לפני השמירה יוצג סיכום לאישור.</p>'+
+      '<div class="field">'+
+        '<label>תמונה</label>'+
+        '<div class="uploader" id="sUploader" onclick="el(\'sPhotoInput\').click()">'+
+          '<div class="up-ico">📷</div><div class="up-t">לחצו לצילום / העלאת תמונה</div>'+
+          '<div class="up-d">לא חובה</div>'+
+          '<input type="file" id="sPhotoInput" accept="image/*" onchange="onSPhoto(this)">'+
+        '</div>'+
+        '<div class="preview-wrap" id="sPreviewWrap"><button class="rm" onclick="removeSPhoto()">✕</button><img id="sPreviewImg" alt="תצוגה מקדימה"></div>'+
+      '</div>'+
+      '<div class="grid two" style="gap:0 16px">'+
+        '<div class="field"><label>שם</label><input type="text" id="sFirst" value="'+esc(prefill.firstName||'')+'"></div>'+
+        '<div class="field"><label>שם משפחה</label><input type="text" id="sLast" value="'+esc(prefill.lastName||'')+'"></div>'+
+      '</div>'+
+      '<div class="field"><label>סיבה שהוא חשוד</label><textarea id="sReason" placeholder="תיאור קצר של הסיבה...">'+esc(prefill.reason||'')+'</textarea></div>'+
+      '<div class="field"><label>תאריך הזנה</label><input type="date" id="sDate" value="'+esc(prefill.entryDate||todayISO())+'"></div>'+
+      '<button class="btn btn-primary btn-block" onclick="reviewSuspect()">המשך לאישור ←</button>'+
+    '</div>';
+  if (sPhoto) showSPreview(sPhoto);
+}
+function onSPhoto(input){ var f=input.files&&input.files[0]; if(!f) return; compressImage(f, function(b){ sPhoto=b; showSPreview(b); }, 800); }
+function showSPreview(b){ el('sPreviewImg').src=b; el('sPreviewWrap').style.display='block'; el('sUploader').style.display='none'; }
+function removeSPhoto(){ sPhoto=null; el('sPhotoInput').value=''; el('sPreviewWrap').style.display='none'; el('sUploader').style.display='block'; }
+
+function readSuspectForm(){
+  return { firstName:el('sFirst').value.trim(), lastName:el('sLast').value.trim(), reason:el('sReason').value.trim(), entryDate:el('sDate').value||'', photo:sPhoto };
+}
+function reviewSuspect(){
+  var it = readSuspectForm();
+  window._sDraft = it;
+  var empty = !it.firstName && !it.lastName && !it.reason && !it.photo;
+  openModal('<h3>אישור לפני שמירה</h3><div id="revBody"><span class="spinner" style="border-color:#cbd5e1;border-top-color:var(--accent)"></span> בודק כפילויות במאגר...</div>');
+  loadSuspects().then(function(list){
+    var m = findMatches(it.firstName, it.lastName, list);
+    var html = '';
+    if (empty) html += '<div class="notice warn">כל השדות ריקים. אפשר לשמור בכל זאת, אבל תיווצר רשומה ריקה.</div>';
+    html += '<div class="rec">'+(it.photo?'<img class="rec-photo" src="'+esc(it.photo)+'" alt="">':'')+'<div class="rec-body">'+
+      ['שם|'+it.firstName, 'שם משפחה|'+it.lastName, 'סיבה|'+it.reason, 'תאריך הזנה|'+fmtDate(it.entryDate)].map(function(x){
+        var p=x.split('|'); return '<div class="row"><span class="k">'+p[0]+'</span><span class="v">'+(p[1]?esc(p[1]):'<span class="muted">—</span>')+'</span></div>';
+      }).join('')+'</div></div>';
+    if (m.cands.length) {
+      html += '<div class="notice '+(m.status==='match'?'err':'warn')+'"><b>'+(m.status==='match'?'כבר קיימת במאגר רשומה עם אותו שם:':'נמצאו במאגר רשומות דומות:')+'</b> אפשר עדיין לשמור — הרשומה הקיימת לא תשתנה.</div>';
+      html += m.cands.slice(0,3).map(candHTML).join('');
+    }
+    html += '<div class="actions" style="margin-top:14px"><button class="btn btn-ghost btn-block" onclick="closeModal()">חזרה לעריכה</button>'+
+            '<button class="btn btn-green btn-block" id="confirmSaveBtn" onclick="confirmSaveSuspect()">✅ אשר ושמור</button></div>';
+    el('revBody').innerHTML = html; hydratePhotos(el('revBody'));
+  }).catch(function(err){
+    el('revBody').innerHTML = '<div class="notice err">לא ניתן לטעון את המאגר לבדיקת כפילויות: '+esc(err.message)+'</div>'+
+      '<div class="actions"><button class="btn btn-ghost btn-block" onclick="closeModal()">חזרה</button><button class="btn btn-green btn-block" id="confirmSaveBtn" onclick="confirmSaveSuspect()">שמור בכל זאת</button></div>';
+  });
+}
+function confirmSaveSuspect(){
+  var b = el('confirmSaveBtn'); b.disabled=true; b.innerHTML='<span class="spinner"></span> שומר...';
+  saveSuspects([window._sDraft], 'manual').then(function(){
+    closeModal(); toast('✅ החשוד נשמר במאגר','ok');
+    el('stage').innerHTML = '<div class="panel" style="text-align:center"><div style="font-size:60px">✅</div><h2>נשמר בהצלחה</h2>'+
+      '<p class="lead" style="text-align:center">'+esc(((window._sDraft.firstName||'')+' '+(window._sDraft.lastName||'')).trim() || 'רשומה ללא שם')+' נוסף למאגר</p>'+
+      '<div class="actions"><button class="btn btn-ghost btn-block" onclick="screenSuspectsHome()">חזרה</button><button class="btn btn-primary btn-block" onclick="screenSuspectAdd()">➕ חשוד נוסף</button></div></div>';
+  }).catch(function(err){ b.disabled=false; b.innerHTML='✅ אשר ושמור'; toast('שגיאה בשמירה: '+err.message,'err'); });
+}
+
+/* ===== מודאל ===== */
+function openModal(html){ el('modalRoot').innerHTML = '<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal">'+html+'</div></div>'; }
+function closeModal(){ el('modalRoot').innerHTML=''; }
+
+/* =========================================================
+   הזנה מרוכזת ובדיקה
+   ========================================================= */
+var BULK = { rows:[], notices:[], results:null };
+function blankRow(){ return { first:'', last:'', reason:'', date:'', dateBad:false, dateRaw:'', photo:null, photoUrl:'', photoRef:'' }; }
+function rowEmpty(r){ return !r.first.trim() && !r.last.trim() && !r.reason.trim() && !r.date && !r.dateRaw && !r.photo && !r.photoUrl && !r.photoRef; }
+
+function screenBulk(){
+  setWide(true);
+  sCrumbs(['🕵️ חשודים','📋 הזנה מרוכזת ובדיקה']);
+  if (!BULK.rows.length) BULK.rows = [blankRow(), blankRow(), blankRow()];
+  el('stage').innerHTML =
+    '<div class="panel">'+
+      '<button class="back-link" onclick="screenSuspectsHome()">→ חזרה</button>'+
+      '<h2>📋 הזנה מרוכזת ובדיקה</h2>'+
+      '<p class="lead">מלאו את הטבלה, העלו קובץ Excel או הדביקו נתונים. בדקו ותקנו, ורק אז הריצו בדיקה מול המאגר'+(canEdit()?' או שמרו במאגר':'')+'.</p>'+
+
+      '<div class="section-t"><span class="num">1</span> הכנת הנתונים</div>'+
+      '<div class="notice info"><b>העמודות הצפויות</b> (שורה ראשונה = כותרות, הסדר לא משנה, אף עמודה אינה חובה):'+
+        '<table class="cols-guide"><tr><th>עמודה</th><th>מה לכתוב</th><th>דוגמה</th></tr>'+
+        '<tr><td>שם</td><td>שם פרטי</td><td>ישראל</td></tr>'+
+        '<tr><td>שם משפחה</td><td>שם משפחה</td><td>ישראלי</td></tr>'+
+        '<tr><td>סיבה</td><td>הסיבה שהוא חשוד</td><td>צילם את הכניסה</td></tr>'+
+        '<tr><td>תאריך הזנה</td><td>DD/MM/YYYY או תאריך של Excel</td><td>09/10/2026</td></tr>'+
+        '<tr><td>תמונה</td><td>קישור (https://...) או שם קובץ תמונה שתצרפו בנפרד. אפשר גם להדביק תמונה בתוך התא ב-Excel</td><td>israel1.jpg</td></tr>'+
+        '</table></div>'+
+      '<div class="toolbar">'+
+        '<button class="btn btn-ghost btn-sm" onclick="downloadTemplate()">⬇️ הורדת תבנית Excel</button>'+
+        '<label class="btn btn-primary btn-sm file-btn">📂 העלאת Excel / CSV<input type="file" accept=".xlsx,.csv,.xls" onchange="onBulkFile(this)"></label>'+
+        '<label class="btn btn-ghost btn-sm file-btn">🖼️ צירוף תמונות (לפי שם קובץ)<input type="file" accept="image/*" multiple onchange="onBulkImages(this)"></label>'+
+      '</div>'+
+      '<textarea class="paste-box" id="pasteBox" placeholder="או: העתיקו שורות מ-Excel (כולל שורת הכותרות) והדביקו כאן..." onpaste="setTimeout(onPasteBox,0)"></textarea>'+
+      '<div id="bulkNotices"></div>'+
+
+      '<div class="section-t"><span class="num">2</span> בדיקה ועריכה של הנתונים</div>'+
+      '<div id="bulkIssues"></div>'+
+      '<div class="tbl-wrap" id="bulkTable"></div>'+
+      '<div class="toolbar">'+
+        '<button class="btn btn-ghost btn-sm" onclick="bulkAddRow()">➕ הוספת שורה</button>'+
+        '<button class="btn btn-ghost btn-sm" onclick="bulkAddRows(10)">➕ 10 שורות</button>'+
+        '<button class="btn btn-ghost btn-sm" onclick="bulkClear()">🧹 ניקוי הטבלה</button>'+
+      '</div>'+
+
+      '<div class="section-t"><span class="num">3</span> הרצה</div>'+
+      '<div class="actions">'+
+        '<button class="btn btn-primary btn-block" onclick="prepareCheck()">🔍 בדיקה מול המאגר</button>'+
+        (canEdit() ? '<button class="btn btn-green btn-block" onclick="prepareSave()">💾 שמירה במאגר</button>' : '')+
+      '</div>'+
+      '<div class="hint">הבדיקה לא משנה שום נתון במאגר. השמירה מוסיפה רשומות חדשות בלבד — היא לא מוחקת ולא משנה רשומות קיימות.</div>'+
+
+      '<div id="bulkResults"></div>'+
+    '</div>';
+  renderBulkNotices(); renderBulkTable();
+  if (BULK.results) renderResults();
+}
+
+function renderBulkNotices(){
+  var box = el('bulkNotices'); if (!box) return;
+  box.innerHTML = BULK.notices.map(function(n){
+    return '<div class="notice '+n.type+'" style="margin-top:10px">'+n.html+'</div>';
+  }).join('');
+}
+
+function renderBulkTable(){
+  var rows = BULK.rows;
+  var h = '<table class="gt"><thead><tr><th>#</th><th>תמונה</th><th>שם</th><th>שם משפחה</th><th>סיבה שהוא חשוד</th><th>תאריך הזנה</th><th></th></tr></thead><tbody>';
+  rows.forEach(function(r, i){
+    var ph;
+    if (r.photo) ph = '<img class="thumb" src="'+esc(r.photo)+'" alt=""><button class="mini-btn del" title="הסרת תמונה" onclick="bulkRmPhoto('+i+')">✕</button>';
+    else if (r.photoUrl) ph = '<img class="thumb" src="'+esc(safeImg(r.photoUrl))+'" referrerpolicy="no-referrer" alt="🔗"><button class="mini-btn del" title="הסרת קישור" onclick="bulkRmPhoto('+i+')">✕</button>';
+    else if (r.photoRef) ph = '<span class="ph-ref" title="ממתין לקובץ: '+esc(r.photoRef)+'">⏳ '+esc(r.photoRef)+'</span><button class="mini-btn" title="צירוף תמונה" onclick="pickRowPhoto('+i+')">📎</button>';
+    else ph = '<button class="mini-btn" title="צירוף תמונה" onclick="pickRowPhoto('+i+')">📎 תמונה</button>';
+    var dateCell = r.dateBad
+      ? '<input type="text" class="bad" value="'+esc(r.dateRaw)+'" onchange="bulkSetDate('+i+',this.value)" placeholder="DD/MM/YYYY"><div class="bad-hint">תאריך לא תקין — תקנו או מחקו</div>'
+      : '<input type="date" value="'+esc(r.date)+'" onchange="bulkSetDate('+i+',this.value)">';
+    h += '<tr class="'+(rowEmpty(r)?'row-empty':'')+'"><td class="rn">'+(i+1)+'</td>'+
+      '<td><div class="ph-cell">'+ph+'</div></td>'+
+      '<td><input type="text" value="'+esc(r.first)+'" oninput="bset('+i+',\'first\',this.value)"></td>'+
+      '<td><input type="text" value="'+esc(r.last)+'" oninput="bset('+i+',\'last\',this.value)"></td>'+
+      '<td style="min-width:200px"><textarea oninput="bset('+i+',\'reason\',this.value)">'+esc(r.reason)+'</textarea></td>'+
+      '<td style="min-width:150px">'+dateCell+'</td>'+
+      '<td><button class="mini-btn del" title="מחיקת שורה" onclick="bulkDelRow('+i+')">🗑️</button></td></tr>';
+  });
+  h += '</tbody></table>';
+  el('bulkTable').innerHTML = h;
+  renderBulkIssues();
+}
+function renderBulkIssues(){
+  var rows = BULK.rows, filled = 0, bad = [], refs = [], noName = 0;
+  rows.forEach(function(r, i){
+    if (rowEmpty(r)) return; filled++;
+    if (r.dateBad) bad.push(i+1);
+    if (r.photoRef && !r.photo && !r.photoUrl) refs.push(i+1);
+    if (!r.first.trim() && !r.last.trim()) noName++;
+  });
+  var msgs = [];
+  if (bad.length) msgs.push('<div class="notice err">❌ תאריך לא תקין בשורות: <b>'+bad.join(', ')+'</b>. יש לתקן או למחוק את התאריך לפני השמירה.</div>');
+  if (refs.length) msgs.push('<div class="notice warn">⏳ לשורות '+refs.join(', ')+' מצוין שם קובץ תמונה שעדיין לא צורף. צרפו את התמונות בכפתור "צירוף תמונות", או המשיכו בלעדיהן.</div>');
+  if (noName) msgs.push('<div class="notice warn">ℹ️ '+noName+' שורות בלי שם ושם משפחה — אפשר לשמור אותן, אבל הן לא ייבדקו מול המאגר.</div>');
+  el('bulkIssues').innerHTML = '<div class="hint" style="margin-bottom:8px">'+filled+' שורות עם נתונים · שורות ריקות לא ייכללו</div>' + msgs.join('');
+}
+function bset(i, k, v){ BULK.rows[i][k] = v; BULK.results = null; clearResults(); }
+function bulkSetDate(i, v){
+  var r = BULK.rows[i], n = normDate(v);
+  if (n.ok) { r.date = n.val; r.dateBad = false; r.dateRaw = ''; } else { r.dateBad = true; r.dateRaw = v; }
+  renderBulkTable();
+}
+function bulkAddRow(){ bulkAddRows(1); }
+function bulkAddRows(n){
+  if (BULK.rows.length + n > MAX_BULK_ROWS) { toast('הגעתם למקסימום '+MAX_BULK_ROWS+' שורות','err'); return; }
+  for (var i=0;i<n;i++) BULK.rows.push(blankRow());
+  renderBulkTable();
+}
+function bulkDelRow(i){ BULK.rows.splice(i,1); if (!BULK.rows.length) BULK.rows.push(blankRow()); clearResults(); renderBulkTable(); }
+function bulkClear(){
+  if (BULK.rows.some(function(r){ return !rowEmpty(r); }) && !confirm('לנקות את כל הטבלה?')) return;
+  BULK.rows = [blankRow(), blankRow(), blankRow()]; BULK.notices = []; clearResults(); renderBulkNotices(); renderBulkTable();
+}
+function bulkRmPhoto(i){ var r=BULK.rows[i]; r.photo=null; r.photoUrl=''; r.photoRef=''; renderBulkTable(); }
+function pickRowPhoto(i){ var inp=el('rowPhotoInput'); inp.value=''; inp.setAttribute('data-i', i); inp.click(); }
+function onRowPhoto(inp){
+  var f = inp.files && inp.files[0], i = +inp.getAttribute('data-i'); if (!f || !BULK.rows[i]) return;
+  compressImage(f, function(b){ BULK.rows[i].photo=b; BULK.rows[i].photoUrl=''; renderBulkTable(); }, 800);
+}
+function clearResults(){ BULK.results = null; var b = el('bulkResults'); if (b) b.innerHTML=''; }
+
+/* ---------- תאריכים ---------- */
+function normDate(v){
+  if (v instanceof Date) { if (isNaN(v)) return { ok:false }; return { ok:true, val: v.getUTCFullYear()+'-'+pad2(v.getUTCMonth()+1)+'-'+pad2(v.getUTCDate()) }; }
+  var s = String(v==null?'':v).trim();
+  if (!s) return { ok:true, val:'' };
+  var y, m, d, mt;
+  if ((mt = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ].*)?$/.exec(s))) { y=+mt[1]; m=+mt[2]; d=+mt[3]; }
+  else if ((mt = /^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2}|\d{4})$/.exec(s))) { d=+mt[1]; m=+mt[2]; y=+mt[3]; if (y<100) y+=2000; }
+  else if (/^\d{5}(\.\d+)?$/.test(s)) { var dt = new Date(Math.round((parseFloat(s)-25569)*86400000)); return normDate(dt); }
+  else return { ok:false };
+  var t = new Date(Date.UTC(y, m-1, d));
+  if (t.getUTCFullYear()!==y || t.getUTCMonth()!==m-1 || t.getUTCDate()!==d || y<1900 || y>2100) return { ok:false };
+  return { ok:true, val: y+'-'+pad2(m)+'-'+pad2(d) };
+}
+
+/* ---------- זיהוי עמודות ---------- */
+var HEADERS = {
+  first:  ['שם','שם פרטי','first','first name','firstname','given name','name'],
+  last:   ['שם משפחה','משפחה','last','last name','lastname','surname','family name'],
+  reason: ['סיבה','סיבה שהוא חשוד','סיבת חשד','סיבת החשד','סיבה לחשד','reason','reason for suspicion'],
+  date:   ['תאריך','תאריך הזנה','date','entry date'],
+  photo:  ['תמונה','קישור לתמונה','מזהה תמונה','שם קובץ תמונה','photo','image','picture','photo id','image id','photo url','image url']
+};
+var COL_LABEL = { first:'שם', last:'שם משפחה', reason:'סיבה', date:'תאריך הזנה', photo:'תמונה' };
+function normHeader(h){ return String(h==null?'':h).replace(/[*:"'״׳]/g,'').replace(/\s+/g,' ').trim().toLowerCase(); }
+function detectColumns(row){
+  var map = {}, unknown = [];
+  row.forEach(function(cell, ci){
+    var h = normHeader(cell); if (!h) return;
+    var found = null;
+    Object.keys(HEADERS).forEach(function(k){ if (!found && HEADERS[k].indexOf(h) >= 0) found = k; });
+    if (found && map[found] === undefined) map[found] = ci; else if (!found) unknown.push(String(cell));
+  });
+  return { map:map, unknown:unknown };
+}
+
+/* grid = מערך שורות של תאים. imgs = {אינדקס שורה ב-grid: Blob} */
+function importGrid(grid, imgs, sourceName){
+  var notices = [];
+  grid = grid.filter(function(r){ return r && r.some(function(c){ return String(c==null?'':c).trim() !== ''; }); });
+  if (!grid.length) { BULK.notices = [{ type:'err', html:'❌ לא נמצאו נתונים ב'+esc(sourceName)+'.' }]; renderBulkNotices(); return; }
+  var det = detectColumns(grid[0]), map = det.map, start = 1, imgOffset = 1;
+  if (Object.keys(map).length === 0) {
+    // אין כותרות מוכרות — לפי סדר העמודות
+    var width = Math.max.apply(null, grid.map(function(r){ return r.length; }));
+    if (width > 5) {
+      BULK.notices = [{ type:'err', html:'❌ לא זוהו כותרות עמודות ב'+esc(sourceName)+'. ודאו שהשורה הראשונה מכילה כותרות: <b>שם, שם משפחה, סיבה, תאריך הזנה, תמונה</b> — או הורידו את התבנית.' }];
+      renderBulkNotices(); return;
+    }
+    map = { first:0, last:1, reason:2, date:3, photo:4 }; start = 0; imgOffset = 0;
+    notices.push({ type:'warn', html:'⚠️ לא זוהתה שורת כותרות, ולכן העמודות פורשו לפי הסדר: <b>שם, שם משפחה, סיבה, תאריך הזנה, תמונה</b>. בדקו שהנתונים במקום הנכון.' });
+  } else {
+    var missing = ['first','last','reason','date'].filter(function(k){ return map[k] === undefined; }).map(function(k){ return COL_LABEL[k]; });
+    if (missing.length) notices.push({ type:'warn', html:'⚠️ עמודות חסרות: <b>'+missing.join(', ')+'</b>. השדות האלה יישארו ריקים — אפשר להשלים בטבלה.' });
+    if (det.unknown.length) notices.push({ type:'info', html:'ℹ️ עמודות שלא זוהו ולא יובאו: '+det.unknown.map(esc).join(', ') });
+  }
+  var data = grid.slice(start);
+  if (data.length > MAX_BULK_ROWS) { notices.push({ type:'warn', html:'⚠️ הקובץ מכיל '+data.length+' שורות. יובאו רק '+MAX_BULK_ROWS+' הראשונות.' }); data = data.slice(0, MAX_BULK_ROWS); }
+  function cell(r, k){ var ci = map[k]; return ci === undefined ? '' : r[ci]; }
+  var newRows = [], badDates = 0, pending = [];
+  data.forEach(function(r, di){
+    var row = blankRow();
+    row.first = String(cell(r,'first')==null?'':cell(r,'first')).trim();
+    row.last = String(cell(r,'last')==null?'':cell(r,'last')).trim();
+    row.reason = String(cell(r,'reason')==null?'':cell(r,'reason')).trim();
+    var dv = cell(r,'date'), n = normDate(dv);
+    if (n.ok) row.date = n.val; else { row.dateBad = true; row.dateRaw = String(dv); badDates++; }
+    var pv = String(cell(r,'photo')==null?'':cell(r,'photo')).trim();
+    if (/^https:\/\//i.test(pv)) row.photoUrl = pv;
+    else if (/^http:\/\//i.test(pv)) { row.photoRef = pv; }
+    else if (pv) row.photoRef = pv;
+    var gi = di + start;
+    if (imgs && imgs[gi]) pending.push({ row:row, blob:imgs[gi] });
+    newRows.push(row);
+  });
+  if (badDates) notices.push({ type:'err', html:'❌ ב-'+badDates+' שורות התאריך לא תקין. הן מסומנות באדום בטבלה — תקנו לפני השמירה.' });
+  var httpRefs = newRows.filter(function(r){ return /^http:\/\//i.test(r.photoRef); }).length;
+  if (httpRefs) notices.push({ type:'warn', html:'⚠️ '+httpRefs+' קישורי תמונה אינם מאובטחים (http) ולא יוצגו. השתמשו בקישורי https או צרפו את הקבצים.' });
+  var keep = BULK.rows.filter(function(r){ return !rowEmpty(r); });
+  if (keep.length) notices.push({ type:'info', html:'ℹ️ הנתונים נוספו מתחת ל-'+keep.length+' השורות שכבר היו בטבלה.' });
+  BULK.rows = keep.concat(newRows);
+  if (!BULK.rows.length) BULK.rows.push(blankRow());
+  notices.unshift({ type:'ok', html:'✅ יובאו <b>'+newRows.length+'</b> שורות מ'+esc(sourceName)+(pending.length?' (כולל '+pending.length+' תמונות מתוך הקובץ)':'')+'. בדקו אותן בטבלה לפני ההרצה.' });
+  BULK.notices = notices; clearResults(); renderBulkNotices(); renderBulkTable();
+  // תמונות מוטמעות בקובץ
+  pending.forEach(function(p){
+    compressImage(p.blob, function(b){ p.row.photo = b; p.row.photoRef=''; renderBulkTable(); }, 800, function(){});
+  });
+}
+
+/* ---------- קריאת קבצים ---------- */
+function loadExcelJS(){
+  if (window.ExcelJS) return Promise.resolve();
+  if (window._excelP) return window._excelP;
+  window._excelP = new Promise(function(res, rej){
+    var s = document.createElement('script');
+    s.src = EXCELJS_URL; s.integrity = EXCELJS_SRI; s.crossOrigin = 'anonymous';
+    s.onload = function(){ res(); };
+    s.onerror = function(){ window._excelP = null; rej(new Error('לא ניתן לטעון את רכיב ה-Excel. בדקו חיבור לאינטרנט.')); };
+    document.head.appendChild(s);
+  });
+  return window._excelP;
+}
+function cellText(c){
+  var v = c.value;
+  if (v == null) return '';
+  if (v instanceof Date) return v;
+  if (typeof v === 'object') {
+    if (v.richText) return v.richText.map(function(t){ return t.text; }).join('');
+    if (v.hyperlink) return /^https?:/i.test(v.hyperlink) ? v.hyperlink : (v.text || '');
+    if (v.result !== undefined) return v.result instanceof Date ? v.result : String(v.result==null?'':v.result);
+    if (v.text) return String(v.text);
+    if (v.error) return '';
+    return '';
+  }
+  return String(v);
+}
+function onBulkFile(inp){
+  var f = inp.files && inp.files[0]; inp.value=''; if (!f) return;
+  var name = '"' + f.name + '"', ext = (f.name.split('.').pop()||'').toLowerCase();
+  if (f.size > 15*1024*1024) { BULK.notices=[{type:'err', html:'❌ הקובץ גדול מדי (מעל 15MB).'}]; renderBulkNotices(); return; }
+  if (ext === 'xls') { BULK.notices=[{type:'err', html:'❌ הפורמט הישן ‎.xls אינו נתמך. פתחו את הקובץ ב-Excel ושמרו אותו כ-‎.xlsx (שמירה בשם ← Excel Workbook).'}]; renderBulkNotices(); return; }
+  if (ext === 'csv') {
+    f.text().then(function(t){ importGrid(parseDelimited(t.replace(/^﻿/,''), detectDelim(t)), null, 'הקובץ '+name); });
+    return;
+  }
+  if (ext !== 'xlsx') { BULK.notices=[{type:'err', html:'❌ סוג קובץ לא נתמך. העלו קובץ ‎.xlsx או ‎.csv.'}]; renderBulkNotices(); return; }
+  BULK.notices=[{type:'info', html:'<span class="spinner" style="border-color:#bfdbfe;border-top-color:var(--accent)"></span> קורא את הקובץ...'}]; renderBulkNotices();
+  loadExcelJS().then(function(){ return f.arrayBuffer(); }).then(function(buf){
+    var wb = new ExcelJS.Workbook();
+    return wb.xlsx.load(buf).then(function(){ return wb; });
+  }).then(function(wb){
+    var ws = wb.worksheets[0];
+    if (!ws) throw new Error('NO_SHEET');
+    var grid = [], rowToGrid = {};
+    var maxCol = Math.min(ws.columnCount || 10, 30);
+    ws.eachRow({ includeEmpty:false }, function(row, rn){
+      var vals = []; for (var c=1; c<=maxCol; c++) vals.push(cellText(row.getCell(c)));
+      rowToGrid[rn] = grid.length; grid.push(vals);
+    });
+    // תמונות שהודבקו בתוך תאים
+    var imgs = {};
+    try {
+      (ws.getImages() || []).forEach(function(im){
+        var rn = Math.floor(im.range.tl.nativeRow != null ? im.range.tl.nativeRow : im.range.tl.row) + 1;
+        var gi = rowToGrid[rn]; if (gi === undefined) return;
+        var media = wb.getImage(+im.imageId); if (!media || !media.buffer) return;
+        imgs[gi] = new Blob([media.buffer], { type:'image/'+(media.extension==='jpg'?'jpeg':media.extension) });
+      });
+    } catch(e){}
+    importGrid(grid, imgs, 'הקובץ '+name);
+  }).catch(function(err){
+    var msg = err.message==='NO_SHEET' ? 'הקובץ לא מכיל גיליונות.' : (/Excel/.test(err.message) ? err.message : 'הקובץ פגום או שאינו קובץ Excel תקין.');
+    BULK.notices=[{type:'err', html:'❌ '+esc(msg)+' נסו לשמור אותו מחדש ב-Excel, או להעתיק ולהדביק את הנתונים.'}]; renderBulkNotices();
+  });
+}
+function detectDelim(t){
+  var first = t.split(/\r?\n/)[0] || '';
+  if (first.indexOf('\t') >= 0) return '\t';
+  if (first.split(';').length > first.split(',').length) return ';';
+  return ',';
+}
+function parseDelimited(text, d){
+  var rows=[], row=[], cur='', q=false, i, ch;
+  for (i=0; i<text.length; i++){
+    ch = text[i];
+    if (q) {
+      if (ch === '"') { if (text[i+1] === '"') { cur += '"'; i++; } else q = false; }
+      else cur += ch;
+    } else if (ch === '"' && cur === '') q = true;
+    else if (ch === d) { row.push(cur); cur=''; }
+    else if (ch === '\n' || ch === '\r') { if (ch==='\r' && text[i+1]==='\n') i++; row.push(cur); rows.push(row); row=[]; cur=''; }
+    else cur += ch;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows;
+}
+function onPasteBox(){
+  var t = el('pasteBox').value; if (!t.trim()) return;
+  el('pasteBox').value = '';
+  importGrid(parseDelimited(t, detectDelim(t)), null, 'הנתונים שהודבקו');
+}
+function onBulkImages(inp){
+  var files = Array.prototype.slice.call(inp.files || []); inp.value=''; if (!files.length) return;
+  function key(s){ return String(s||'').trim().toLowerCase().replace(/\.[a-z0-9]+$/,''); }
+  var matched = 0, unmatched = [], left = files.length;
+  files.forEach(function(f){
+    var k = key(f.name);
+    var rows = BULK.rows.filter(function(r){ return r.photoRef && (key(r.photoRef) === k || r.photoRef.trim().toLowerCase() === f.name.toLowerCase()); });
+    if (!rows.length) { unmatched.push(f.name); if (--left===0) done(); return; }
+    compressImage(f, function(b){ rows.forEach(function(r){ r.photo=b; r.photoRef=''; matched++; }); if (--left===0) done(); }, 800, function(){ unmatched.push(f.name); if (--left===0) done(); });
+  });
+  function done(){
+    var n = [{ type: matched?'ok':'warn', html: (matched?'✅ צורפו '+matched+' תמונות לשורות לפי שם הקובץ.':'⚠️ אף תמונה לא התאימה לשורה.') }];
+    if (unmatched.length) n.push({ type:'warn', html:'⚠️ תמונות שלא נמצאה להן שורה (שם הקובץ לא מופיע בעמודת "תמונה"): '+unmatched.map(esc).join(', ')+'. אפשר לצרף אותן ידנית עם 📎 בשורה המתאימה.' });
+    BULK.notices = n; renderBulkNotices(); renderBulkTable();
+  }
+}
+
+/* ---------- הרצת בדיקה ---------- */
+function filledRows(){ var out=[]; BULK.rows.forEach(function(r,i){ if (!rowEmpty(r)) out.push({ r:r, n:i+1 }); }); return out; }
+
+function prepareCheck(){
+  var rows = filledRows();
+  if (!rows.length) { toast('הטבלה ריקה — הזינו או העלו נתונים','err'); return; }
+  var checkable = rows.filter(function(x){ return x.r.first.trim() || x.r.last.trim(); }).length;
+  openModal('<h3>🔍 בדיקה מול המאגר</h3><div id="mBody"><span class="spinner" style="border-color:#cbd5e1;border-top-color:var(--accent)"></span> טוען את המאגר...</div>');
+  loadSuspects(true).then(function(list){
+    el('mBody').innerHTML =
+      '<div class="notice info">ייבדקו <b>'+checkable+'</b> שורות מול <b>'+list.length+'</b> רשומות במאגר.'+
+      (rows.length-checkable ? '<br>'+(rows.length-checkable)+' שורות בלי שם לא ייבדקו.' : '')+
+      '<br>הבדיקה <b>לא משנה</b> שום נתון במאגר.</div>'+
+      '<div class="actions"><button class="btn btn-ghost btn-block" onclick="closeModal()">חזרה לעריכה</button>'+
+      '<button class="btn btn-primary btn-block" onclick="runCheck()">הרץ בדיקה</button></div>';
+  }).catch(function(err){
+    el('mBody').innerHTML = '<div class="notice err">לא ניתן לטעון את המאגר: '+esc(err.message)+'</div><button class="btn btn-ghost btn-block" onclick="closeModal()">סגירה</button>';
+  });
+}
+function runCheck(){
+  closeModal();
+  var list = SUS.list || [], rows = filledRows();
+  BULK.results = rows.map(function(x){ var m = findMatches(x.r.first, x.r.last, list); m.row = x.r; m.n = x.n; return m; });
+  BULK.results.at = new Date().toISOString();
+  logAudit('check', { count: rows.length, matches: BULK.results.filter(function(x){ return x.status==='match'; }).length, reviews: BULK.results.filter(function(x){ return x.status==='review'; }).length });
+  renderResults();
+  el('bulkResults').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function renderResults(){
+  var R = BULK.results; if (!R) return;
+  var cnt = { match:0, review:0, none:0, skip:0 };
+  R.forEach(function(x){ cnt[x.status]++; });
+  var h = '<div class="section-t"><span class="num">4</span> תוצאות הבדיקה</div>'+
+    '<div class="sum-row">'+
+      '<div class="sum-box red"><span class="n">'+cnt.match+'</span>נמצאה התאמה</div>'+
+      '<div class="sum-box orange"><span class="n">'+cnt.review+'</span>נדרשת בדיקה ידנית</div>'+
+      '<div class="sum-box green"><span class="n">'+cnt.none+'</span>לא נמצאה התאמה</div>'+
+      '<div class="sum-box gray"><span class="n">'+cnt.skip+'</span>לא נבדקו</div>'+
+    '</div>'+
+    '<div class="notice warn">⚠️ ההתאמה מתבססת על <b>שמות בלבד</b>. גם "נמצאה התאמה" אינה זיהוי ודאי — אנשים שונים יכולים לשאת אותו שם. אמתו כל התאמה מול התמונה ושאר הפרטים לפני כל פעולה.</div>'+
+    '<div class="toolbar"><button class="btn btn-ghost btn-sm" onclick="exportResults()">⬇️ ייצוא התוצאות ל-Excel</button></div>'+
+    '<div class="tbl-wrap"><table class="gt"><thead><tr><th>#</th><th>תמונה שהוזנה</th><th>שם</th><th>שם משפחה</th><th>סטטוס</th><th>התאמה במאגר ופרטים תואמים</th></tr></thead><tbody>';
+  R.forEach(function(x){
+    var r = x.row, ph = r.photo ? '<img class="thumb" src="'+esc(r.photo)+'" alt="">' : (r.photoUrl ? '<img class="thumb" src="'+esc(safeImg(r.photoUrl))+'" referrerpolicy="no-referrer" alt="">' : '<span class="muted">—</span>');
+    var detail = x.status==='none' ? '<span class="muted">לא נמצאה רשומה תואמת במאגר</span>'
+      : (x.status==='skip' ? '<span class="muted">אין שם או שם משפחה לבדיקה</span>'
+      : x.cands.slice(0,3).map(candHTML).join('') + (x.cands.length>3 ? '<div class="hint">ועוד '+(x.cands.length-3)+' רשומות דומות — יופיעו בקובץ הייצוא</div>' : ''));
+    h += '<tr><td class="rn">'+x.n+'</td><td>'+ph+'</td><td>'+esc(r.first)+'</td><td>'+esc(r.last)+'</td>'+
+      '<td><span class="st '+x.status+'">'+ST_LABEL[x.status]+'</span></td><td>'+detail+'</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  el('bulkResults').innerHTML = h;
+  hydratePhotos(el('bulkResults'));
+}
+
+/* ---------- ייצוא ---------- */
+function downloadBlob(blob, name){
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+function styleHeader(row){
+  row.font = { bold:true, color:{ argb:'FFFFFFFF' } };
+  row.eachCell(function(c){ c.fill = { type:'pattern', pattern:'solid', fgColor:{ argb:'FF0F2744' } }; c.alignment = { vertical:'middle', horizontal:'right' }; });
+  row.height = 22;
+}
+function exportResults(){
+  var R = BULK.results; if (!R) return;
+  if (!confirm('הקובץ יכיל מידע אישי רגיש. שמרו אותו רק במקום מאובטח ומחקו אותו כשאין בו צורך. להמשיך?')) return;
+  loadExcelJS().then(function(){
+    var wb = new ExcelJS.Workbook(); wb.creator = 'מערכת אסף';
+    var ws = wb.addWorksheet('תוצאות בדיקה', { views:[{ rightToLeft:true, state:'frozen', ySplit:1 }] });
+    ws.columns = [
+      { header:'שורה', width:7 }, { header:'שם', width:14 }, { header:'שם משפחה', width:16 }, { header:'סיבה (כפי שהוזנה)', width:26 },
+      { header:'תאריך הזנה', width:12 }, { header:'סטטוס', width:20 }, { header:'פרטים תואמים', width:30 }, { header:'הערה', width:34 },
+      { header:'שם במאגר', width:22 }, { header:'סיבה במאגר', width:30 }, { header:'תאריך הזנה במאגר', width:14 },
+      { header:'הוזן ע״י', width:24 }, { header:'מתי הוזן', width:18 }, { header:'מזהה רשומה', width:22 }
+    ];
+    styleHeader(ws.getRow(1));
+    var label = { match:'נמצאה התאמה', review:'נדרשת בדיקה ידנית', none:'לא נמצאה התאמה', skip:'לא נבדק — אין שם' };
+    var fill = { match:'FFFEE2E2', review:'FFFFEDD5', none:'FFDCFCE7', skip:'FFF1F5F9' };
+    var W = { y:'זהה', p:'דומה', n:'חסר' };
+    R.forEach(function(x){
+      var r = x.row, base = [x.n, r.first, r.last, r.reason, fmtDate(r.date), label[x.status]];
+      var list = x.cands.length ? x.cands : [null];
+      list.forEach(function(c){
+        var s = c && c.s;
+        var row = ws.addRow(base.concat(c ? [
+          c.fields.map(function(f){ return f[0]+': '+W[f[1]]; }).join(' · '), c.note || 'שם ושם משפחה זהים — יש לאמת מול התמונה',
+          ((s.firstName||'')+' '+(s.lastName||'')).trim(), s.reason||'', fmtDate(s.entryDate), s.createdByEmail||'', fmtDT(s.createdAt), s._id
+        ] : ['', '', '', '', '', '', '', '']));
+        row.getCell(6).fill = { type:'pattern', pattern:'solid', fgColor:{ argb: fill[x.status] } };
+        row.alignment = { vertical:'top', wrapText:true, horizontal:'right' };
+      });
+    });
+    var info = wb.addWorksheet('פרטי הבדיקה', { views:[{ rightToLeft:true }] });
+    info.columns = [{ width:22 }, { width:60 }];
+    [['בוצע ע״י', FBAuth.user().email||''], ['זמן הבדיקה', fmtDT(R.at)], ['שורות שנבדקו', R.length],
+     ['שיטת ההתאמה', 'השוואת שמות בלבד. "נמצאה התאמה" = שם ושם משפחה זהים; "נדרשת בדיקה ידנית" = התאמה חלקית או דומה. אין לראות בתוצאה זיהוי ודאי.'],
+     ['אזהרה', 'הקובץ מכיל מידע אישי רגיש. יש לשמור אותו במקום מאובטח ולמחוק כשאין בו צורך.']
+    ].forEach(function(a){ var row = info.addRow(a); row.getCell(1).font = { bold:true }; row.alignment = { wrapText:true, vertical:'top', horizontal:'right' }; });
+    return wb.xlsx.writeBuffer();
+  }).then(function(buf){
+    downloadBlob(new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'asaf-check-'+todayISO()+'.xlsx');
+    logAudit('export', { count: R.length });
+  }).catch(function(err){ toast('שגיאה בייצוא: '+err.message,'err'); });
+}
+function downloadTemplate(){
+  loadExcelJS().then(function(){
+    var wb = new ExcelJS.Workbook(); wb.creator = 'מערכת אסף';
+    var ws = wb.addWorksheet('חשודים', { views:[{ rightToLeft:true, state:'frozen', ySplit:1 }] });
+    ws.columns = [ { header:'שם', width:16 }, { header:'שם משפחה', width:18 }, { header:'סיבה', width:40 }, { header:'תאריך הזנה', width:14 }, { header:'תמונה', width:30 } ];
+    styleHeader(ws.getRow(1));
+    ws.getColumn(4).numFmt = 'dd/mm/yyyy';
+    var g = wb.addWorksheet('הנחיות', { views:[{ rightToLeft:true }] });
+    g.columns = [{ width:18 }, { width:80 }];
+    [['איך למלא', 'ממלאים את הגיליון "חשודים". כל שורה = אדם אחד. אין לשנות את שורת הכותרות.'],
+     ['שם', 'שם פרטי. לא חובה.'],
+     ['שם משפחה', 'לא חובה.'],
+     ['סיבה', 'הסיבה שהאדם חשוד. לא חובה.'],
+     ['תאריך הזנה', 'בפורמט DD/MM/YYYY (למשל 09/10/2026). לא חובה.'],
+     ['תמונה', 'אחת מהאפשרויות: (1) קישור מאובטח שמתחיל ב-https://  (2) שם קובץ תמונה, למשל israel1.jpg — ואת הקובץ מצרפים באתר בכפתור "צירוף תמונות"  (3) להדביק את התמונה ישירות בתוך התא בשורה של האדם.'],
+     ['שורות ריקות', 'שורות ריקות לגמרי לא ייובאו.'],
+     ['לפני השמירה', 'אחרי ההעלאה הנתונים מוצגים בטבלה באתר לבדיקה ולתיקון. שום דבר לא נשמר בלי אישור.']
+    ].forEach(function(a){ var row = g.addRow(a); row.getCell(1).font = { bold:true }; row.alignment = { wrapText:true, vertical:'top', horizontal:'right' }; });
+    return wb.xlsx.writeBuffer();
+  }).then(function(buf){
+    downloadBlob(new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'asaf-suspects-template.xlsx');
+  }).catch(function(err){ toast('שגיאה: '+err.message,'err'); });
+}
+
+/* ---------- שמירה מרוכזת ---------- */
+function prepareSave(){
+  if (!canEdit()) { toast('נדרשת הרשאת עורך','err'); return; }
+  var rows = filledRows();
+  if (!rows.length) { toast('הטבלה ריקה — הזינו או העלו נתונים','err'); return; }
+  var bad = rows.filter(function(x){ return x.r.dateBad; }).map(function(x){ return x.n; });
+  if (bad.length) { openModal('<h3>יש לתקן לפני השמירה</h3><div class="notice err">תאריך לא תקין בשורות: <b>'+bad.join(', ')+'</b>. תקנו או מחקו את התאריך בשורות המסומנות באדום.</div><button class="btn btn-ghost btn-block" onclick="closeModal()">חזרה לטבלה</button>'); return; }
+  openModal('<h3>💾 שמירה במאגר</h3><div id="mBody"><span class="spinner" style="border-color:#cbd5e1;border-top-color:var(--accent)"></span> בודק כפילויות...</div>');
+  loadSuspects(true).then(function(list){
+    var withPhoto = rows.filter(function(x){ return x.r.photo || x.r.photoUrl; }).length;
+    var pendingRefs = rows.filter(function(x){ return x.r.photoRef && !x.r.photo && !x.r.photoUrl; }).length;
+    var dups = rows.filter(function(x){ return findMatches(x.r.first, x.r.last, list).status !== 'none' && (x.r.first||x.r.last); }).map(function(x){ return x.n; });
+    el('mBody').innerHTML =
+      '<div class="notice info">יישמרו <b>'+rows.length+'</b> רשומות חדשות ('+withPhoto+' עם תמונה).<br>רשומות קיימות במאגר <b>לא יימחקו ולא ישתנו</b>.<br>כל רשומה תתועד עם המשתמש שלך ('+esc(FBAuth.user().email||'')+') ושעת השמירה.</div>'+
+      (pendingRefs ? '<div class="notice warn">⏳ ל-'+pendingRefs+' שורות לא צורפה התמונה שצוינה. הן יישמרו בלי תמונה.</div>' : '')+
+      (dups.length ? '<div class="notice warn">⚠️ שורות '+dups.join(', ')+' דומות לרשומות שכבר קיימות במאגר — ייתכן שמדובר בכפילות. מומלץ להריץ קודם בדיקה ולעבור עליהן.</div>' : '')+
+      '<div class="actions"><button class="btn btn-ghost btn-block" onclick="closeModal()">חזרה לעריכה</button>'+
+      '<button class="btn btn-green btn-block" id="bulkSaveBtn" onclick="runSave()">✅ אשר ושמור</button></div>';
+  }).catch(function(err){
+    el('mBody').innerHTML = '<div class="notice err">לא ניתן לטעון את המאגר: '+esc(err.message)+'</div><button class="btn btn-ghost btn-block" onclick="closeModal()">סגירה</button>';
+  });
+}
+function runSave(){
+  var b = el('bulkSaveBtn'); b.disabled = true; b.innerHTML = '<span class="spinner"></span> שומר...';
+  var rows = filledRows();
+  var items = rows.map(function(x){ var r=x.r; return { firstName:r.first.trim(), lastName:r.last.trim(), reason:r.reason.trim(), entryDate:r.date, photo:r.photo, photoUrl: r.photo ? '' : r.photoUrl }; });
+  saveSuspects(items, 'bulk').then(function(n){
+    closeModal();
+    BULK.rows = [blankRow(), blankRow(), blankRow()]; clearResults();
+    BULK.notices = [{ type:'ok', html:'✅ נשמרו <b>'+n+'</b> רשומות חדשות במאגר. הטבלה נוקתה.' }];
+    renderBulkNotices(); renderBulkTable(); toast('✅ נשמרו '+n+' רשומות','ok');
+  }).catch(function(err){
+    var n = err.saved || 0;
+    if (n) { BULK.rows = BULK.rows.filter(function(r){ return !rowEmpty(r); }).slice(n); if (!BULK.rows.length) BULK.rows.push(blankRow()); }
+    closeModal();
+    BULK.notices = [{ type:'err', html:'❌ השמירה נעצרה: '+esc(err.message)+'.'+(n?' '+n+' רשומות ראשונות נשמרו והוסרו מהטבלה; השאר נשארו לשמירה חוזרת.':' שום רשומה לא נשמרה.') }];
+    renderBulkNotices(); renderBulkTable();
+  });
+}
+
+/* =========================================================
+   רשימת חשודים
+   ========================================================= */
+function screenSuspectList(){
+  setWide(true);
+  sCrumbs(['🕵️ חשודים','🗂️ רשימת חשודים']);
+  el('stage').innerHTML = '<div class="panel"><button class="back-link" onclick="screenSuspectsHome()">→ חזרה</button>'+
+    '<h2>🗂️ רשימת חשודים</h2><p class="lead">לחצו על שורה לצפייה בפרטים ובתמונה</p>'+
+    '<div class="search-row field" style="margin-bottom:12px"><input type="search" id="sSearch" placeholder="חיפוש לפי שם, שם משפחה או סיבה..." oninput="renderSuspectList()"></div>'+
+    '<div id="sList"><span class="spinner" style="border-color:#cbd5e1;border-top-color:var(--accent)"></span> טוען...</div></div>';
+  loadSuspects(true).then(renderSuspectList).catch(function(err){ el('sList').innerHTML = '<div class="notice err">'+esc(err.message)+'</div>'; });
+}
+function renderSuspectList(){
+  var list = SUS.list || [], q = normName(el('sSearch') ? el('sSearch').value : '');
+  var rows = q ? list.filter(function(s){ return normName((s.firstName||'')+' '+(s.lastName||'')+' '+(s.reason||'')).indexOf(q) >= 0; }) : list;
+  if (!list.length) { el('sList').innerHTML = '<div class="empty-note"><span class="ico">🗂️</span>המאגר ריק</div>'; return; }
+  var shown = rows.slice(0, 300);
+  var h = '<div class="hint" style="margin-bottom:8px">'+rows.length+' רשומות'+(rows.length>300?' (מוצגות 300 הראשונות — צמצמו בחיפוש)':'')+'</div>'+
+    '<div class="tbl-wrap"><table class="gt"><thead><tr><th>📷</th><th>שם</th><th>שם משפחה</th><th>סיבה</th><th>תאריך הזנה</th><th>הוזן ע״י</th><th>מתי</th>'+(isAdmin()?'<th></th>':'')+'</tr></thead><tbody>';
+  shown.forEach(function(s){
+    h += '<tr style="cursor:pointer" onclick="openSuspect(\''+esc(s._id)+'\')"><td>'+(s.hasPhoto||s.photoUrl?'📷':'')+'</td><td>'+esc(s.firstName)+'</td><td>'+esc(s.lastName)+'</td>'+
+      '<td style="max-width:280px">'+esc(s.reason)+'</td><td>'+esc(fmtDate(s.entryDate))+'</td><td>'+esc(s.createdByEmail)+'</td><td style="white-space:nowrap">'+esc(fmtDT(s.createdAt))+'</td>'+
+      (isAdmin()?'<td><button class="mini-btn del" title="מחיקה" onclick="event.stopPropagation();deleteSuspect(\''+esc(s._id)+'\')">🗑️</button></td>':'')+'</tr>';
+  });
+  el('sList').innerHTML = h + '</tbody></table></div>';
+}
+function openSuspect(id){
+  var s = (SUS.list||[]).filter(function(x){ return x._id===id; })[0]; if (!s) return;
+  function row(k,v){ return '<div class="row"><span class="k">'+k+'</span><span class="v">'+(v?esc(v):'<span class="muted">—</span>')+'</span></div>'; }
+  openModal('<h3>'+esc(((s.firstName||'')+' '+(s.lastName||'')).trim() || 'רשומה ללא שם')+'</h3>'+
+    '<div class="rec">'+(s.hasPhoto||s.photoUrl ? suspectPhotoHTML(s, 'rec-photo') : '')+'<div class="rec-body">'+
+    row('שם', s.firstName)+row('שם משפחה', s.lastName)+row('סיבה', s.reason)+row('תאריך הזנה', fmtDate(s.entryDate))+
+    row('הוזן ע״י', s.createdByEmail)+row('מתי הוזן', fmtDT(s.createdAt))+row('מקור', s.source==='bulk'?'הזנה מרוכזת':'הוספה ידנית')+
+    '</div></div><button class="btn btn-ghost btn-block" onclick="closeModal()">סגירה</button>');
+  hydratePhotos(el('modalRoot'));
+}
+function deleteSuspect(id){
+  if (!isAdmin()) return;
+  var s = (SUS.list||[]).filter(function(x){ return x._id===id; })[0]; if (!s) return;
+  if (!confirm('למחוק לצמיתות את הרשומה של '+(((s.firstName||'')+' '+(s.lastName||'')).trim()||'רשומה ללא שם')+'?')) return;
+  var upd = {}; upd['asafSuspects/'+id] = null; upd['asafSuspectPhotos/'+id] = null;
+  fbJSON('/.json', { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(upd) }).then(function(){
+    logAudit('delete', { count:1, recordId:id, name:((s.firstName||'')+' '+(s.lastName||'')).trim() });
+    SUS.list = SUS.list.filter(function(x){ return x._id!==id; }); delete photoCache[id];
+    renderSuspectList(); toast('הרשומה נמחקה','ok');
+  }).catch(function(err){ toast('שגיאה במחיקה: '+err.message,'err'); });
+}
+
+/* =========================================================
+   יומן פעולות (מנהל בלבד)
+   ========================================================= */
+function screenAudit(){
+  if (!isAdmin()) return;
+  setWide(true);
+  sCrumbs(['🕵️ חשודים','📜 יומן פעולות']);
+  el('stage').innerHTML = '<div class="panel"><button class="back-link" onclick="screenSuspectsHome()">→ חזרה</button><h2>📜 יומן פעולות</h2>'+
+    '<p class="lead">כל הוספה, בדיקה, ייצוא ומחיקה באזור החשודים</p><div id="aList"><span class="spinner" style="border-color:#cbd5e1;border-top-color:var(--accent)"></span> טוען...</div></div>';
+  var L = { create:'➕ הוספה ידנית', bulk_create:'📋 הזנה מרוכזת', check:'🔍 בדיקת רשימה', export:'⬇️ ייצוא תוצאות', delete:'🗑️ מחיקה' };
+  fbJSON('/asafAudit.json').then(function(d){
+    var arr = d ? Object.keys(d).map(function(k){ return d[k]; }) : [];
+    arr.sort(function(a,b){ return String(b.at||'').localeCompare(String(a.at||'')); });
+    if (!arr.length) { el('aList').innerHTML = '<div class="empty-note"><span class="ico">📜</span>אין פעולות עדיין</div>'; return; }
+    var h = '<div class="tbl-wrap"><table class="gt"><thead><tr><th>מתי</th><th>משתמש</th><th>פעולה</th><th>כמות</th><th>פרטים</th></tr></thead><tbody>';
+    arr.slice(0, 500).forEach(function(a){
+      var det = [];
+      if (a.action==='check') det.push('התאמות: '+(a.matches||0)+' · לבדיקה ידנית: '+(a.reviews||0));
+      if (a.name) det.push(a.name);
+      if (a.partial) det.push('נשמר חלקית');
+      h += '<tr><td style="white-space:nowrap">'+esc(fmtDT(a.at))+'</td><td>'+esc(a.email)+'</td><td>'+(L[a.action]||esc(a.action))+'</td><td>'+esc(a.count)+'</td><td>'+esc(det.join(' · '))+'</td></tr>';
+    });
+    el('aList').innerHTML = h + '</tbody></table></div>';
+  }).catch(function(err){ el('aList').innerHTML = '<div class="notice err">'+esc(err.message)+'</div>'; });
+}
+
+/* =========================================================
    PWA — התקנה כאפליקציה + עבודה ללא אינטרנט
    ========================================================= */
 (function setupPWA(){
@@ -622,7 +1864,7 @@ function recCardHTML(rec, withPhoto){
   // manifest מוטמע (ללא צורך בקובץ נפרד)
   var manifest = {
     name: 'מערכת אסף', short_name: 'אסף',
-    description: 'בקרת רכבים — הזנה ובדיקה',
+    description: 'בקרת רכבים וחשודים — הזנה ובדיקה',
     start_url: '.', scope: '.', display: 'standalone',
     orientation: 'portrait', dir: 'rtl', lang: 'he',
     background_color: '#0b1220', theme_color: '#0b1220',
@@ -648,7 +1890,11 @@ function recCardHTML(rec, withPhoto){
 
 /* ---------- boot ---------- */
 el('fbTag').textContent = useLocal() ? 'מצב מקומי (ללא Firebase)' : 'מחובר · Firebase';
-screenLocation();
+if (FBAuth.hasSession()) {
+  FBAuth.refresh().then(afterAuth).catch(function(){ FBAuth.clear(); el('loginEmail').focus(); });
+} else {
+  el('loginEmail').focus();
+}
 </script>
 </body>
 </html>
